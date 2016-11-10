@@ -120,7 +120,7 @@ function my_rest_prepare_post( $data, $post, $request ) {
     return $data;
 }
 add_filter( 'rest_prepare_project_type', 'my_rest_prepare_post', 10, 3 );
-add_image_size( 'project-image-size', 250, 180 );
+add_image_size( 'project-image-size', 620, 320 );
 function wpdocs_custom_excerpt_length( $length ) {
     return 30;
 }
@@ -152,5 +152,3 @@ function my_profile_update( $user_id ) {
         SJProjectsApi::createUser($user_id, $_POST['email'], $_POST['first_name'].' '.$_POST['last_name']);
     }
 }
-
-

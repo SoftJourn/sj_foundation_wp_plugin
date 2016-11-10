@@ -53,7 +53,14 @@ class SJProjectsApi {
     }
 
     static function getProjectTransactions($id) {
-        $response = wp_remote_get(self::API_ENDPOINT.'projects/'.$id . '/transactions');
+        $response = wp_remote_get(self::API_ENDPOINT.'projects/'. $id .'/transactions');
+
         return json_decode($response['body']);
+    }
+
+    static function getAccountBalance($id) {
+        $response = wp_remote_get(self::API_ENDPOINT.'accounts/getBalance?id='. $id);
+        $balanceObject = json_decode($response['body']);
+        return $balanceObject;
     }
 }
