@@ -95,6 +95,7 @@ function init_project_meta_box() {
 
 function my_rest_prepare_post( $data, $post, $request ) {
     $_data = $data->data;
+    $user = wp_get_current_user();
     $thumbnail_id = get_post_thumbnail_id( $post->ID );
     $thumbnail = wp_get_attachment_image_src( $thumbnail_id, 'project-image-size' );
     $_data['featured_image_thumbnail_url'] = $thumbnail[0];
@@ -111,10 +112,24 @@ function my_rest_prepare_post( $data, $post, $request ) {
         $dueDate = $dueDateTaxonomy[0]->name;
     }
 
+    $attachments = [];
+    $attachmentsObject = new Attachments( 'project_attachments', $post->ID );
+    while($attachmentsObject->get()){
+        $attachment = [];
+        $attachment['id'] = $attachmentsObject->id();
+        $attachment['url'] = $attachmentsObject->url();
+        $attachment['title'] = $attachmentsObject->field('title');
+        $attachment['thumbnail'] = $attachmentsObject->image( 'thumbnail' );
+        $attachment['caption'] = $attachmentsObject->field('caption');
+        $attachments[] = $attachment;
+    }
+
+    $_data['attachments'] = $attachments;
     $_data['price'] = $price;
     $_data['due_date'] = $dueDate;
     $_data['api_data'] = SJProjectsApi::getProject($post->ID);
     $_data['transactions'] = SJProjectsApi::getProjectTransactions($post->ID);
+    $_data['user_transactions'] = SJProjectsApi::getProjectAccountTransactions($user->ID, $post->ID);
 
     $_data['prev_project'] = get_previous_project_slug($post->ID);
     $_data['next_project'] = get_next_project_slug($post->ID);
@@ -182,3 +197,66 @@ function get_next_project_slug( $post_id ) {
     }
     return $next_project->post_name;
 }
+
+function project_attachments( $attachments )
+{
+    $fields         = array(
+        array(
+            'name'      => 'title',                         // unique field name
+            'type'      => 'text',                          // registered field type
+            'label'     => __( 'Title', 'attachments' ),    // label to display
+            'default'   => 'title',                         // default value upon selection
+        ),
+        array(
+            'name'      => 'caption',                       // unique field name
+            'type'      => 'textarea',                      // registered field type
+            'label'     => __( 'Caption', 'attachments' ),  // label to display
+            'default'   => 'caption',                       // default value upon selection
+        ),
+    );
+
+    $args = array(
+
+        // title of the meta box (string)
+        'label'         => 'Project Attachments',
+
+        // all post types to utilize (string|array)
+        'post_type'     => array( 'project_type' ),
+
+        // meta box position (string) (normal, side or advanced)
+        'position'      => 'normal',
+
+        // meta box priority (string) (high, default, low, core)
+        'priority'      => 'high',
+
+        // allowed file type(s) (array) (image|video|text|audio|application)
+        'filetype'      => null,  // no filetype limit
+
+        // include a note within the meta box (string)
+        'note'          => 'Attach files here!',
+
+        // by default new Attachments will be appended to the list
+        // but you can have then prepend if you set this to false
+        'append'        => true,
+
+        // text for 'Attach' button in meta box (string)
+        'button_text'   => __( 'Attach Files', 'attachments' ),
+
+        // text for modal 'Attach' button (string)
+        'modal_text'    => __( 'Attach', 'attachments' ),
+
+        // which tab should be the default in the modal (string) (browse|upload)
+        'router'        => 'browse',
+
+        // whether Attachments should set 'Uploaded to' (if not already set)
+        'post_parent'   => false,
+
+        // fields array
+        'fields'        => $fields,
+
+    );
+
+    $attachments->register( 'project_attachments', $args ); // unique instance name
+}
+
+add_action( 'attachments_register', 'project_attachments' );

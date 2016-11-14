@@ -72,6 +72,12 @@ class SJProjectsApi {
         return json_decode($response['body']);
     }
 
+    static function getProjectAccountTransactions($userId, $projectId) {
+        $response = wp_remote_get(self::API_ENDPOINT.'accounts/'. $userId .'/transactions?filter={"where":{"projectId":'.$projectId.'}}');
+
+        return json_decode($response['body']);
+    }
+
     static function updateProjectTransactionsStatus($projectId, $status) {
         $params = [
             'status' => $status,
