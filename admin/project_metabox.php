@@ -8,6 +8,16 @@ class ProjectMetabox
 
     const METABOX_TEMPLATE = 'project_metabox.php';
 
+    const PROJECT_STATUS_ACTIVE = 'active';
+    const PROJECT_STATUS_FOUNDED = 'active';
+    const PROJECT_STATUS_NOT_FOUNDED = 'active';
+
+    private $statuses = [
+        'active' => 'Active',
+        'founded' => 'Founded',
+        'not_founded' => 'Not Founded',
+    ];
+
     /**
      * init meta box
      * @return void
@@ -78,6 +88,12 @@ class ProjectMetabox
                 <input type="text" name="sj_project_price" value="<?php echo $price?>" />
                 <p>Due date</p>
                 <input type="date" id="datepicker" name="sj_project_due_date" value="<?php echo $dueDate?>" />
+                <p>Status</p>
+                <select name="sj_project_status">
+                    <option value="active">Active</option>
+                    <option value="founded">Founded</option>
+                    <option value="not_founded">Not Founded</option>
+                </select>
             </form>
         </div>
 
@@ -94,8 +110,10 @@ class ProjectMetabox
 
         $price = $this->getPricePostData();
         $dueDate = $this->getDueDatePostData();
+        $status = $this->getStatusPostData();
 
-        SJProjectsApi::createProject($post_id, $_POST['post_title'], $price);
+        SJProjectsApi::createProject($post_id, $_POST['post_title'], $price, $status);
+        SJProjectsApi::updateProjectTransactionsStatus($post_id, $status);
 
         wp_set_object_terms( $post_id, [ $price ], 'sj_project_price', false );
         wp_set_object_terms( $post_id, [ $dueDate ], 'sj_project_due_date', false );
@@ -123,6 +141,18 @@ class ProjectMetabox
             return '';
         }
         return sanitize_text_field($post['sj_project_due_date']);
+    }
+
+    /**
+     * get due date value from post
+     * @return string
+     */
+    public function getStatusPostData() {
+        $post = $_POST;
+        if (!isset($post['sj_project_status'])) {
+            return '';
+        }
+        return sanitize_text_field($post['sj_project_status']);
     }
 
 

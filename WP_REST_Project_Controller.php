@@ -75,6 +75,14 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
             ),
         ) );
 
+        register_rest_route( $this->namespace, '/get_transactions', array(
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'getTransactions'),
+                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+            ),
+        ) );
+
         register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)', array(
             array(
                 'methods'             => WP_REST_Server::READABLE,
@@ -132,6 +140,11 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
     public function getBalance() {
         $user = wp_get_current_user();
         return SJProjectsApi::getAccountBalance($user->ID);
+    }
+
+    public function getTransactions() {
+        $user = wp_get_current_user();
+        return SJProjectsApi::getAccountTransactions($user->ID);
     }
 
     /**

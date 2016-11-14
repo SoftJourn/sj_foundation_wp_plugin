@@ -116,6 +116,9 @@ function my_rest_prepare_post( $data, $post, $request ) {
     $_data['api_data'] = SJProjectsApi::getProject($post->ID);
     $_data['transactions'] = SJProjectsApi::getProjectTransactions($post->ID);
 
+    $_data['prev_project'] = get_previous_project_slug($post->ID);
+    $_data['next_project'] = get_next_project_slug($post->ID);
+
     $data->data = $_data;
     return $data;
 }
@@ -151,4 +154,31 @@ function my_profile_update( $user_id ) {
     if ( isset( $_POST['email'] ) ) {
         SJProjectsApi::createUser($user_id, $_POST['email'], $_POST['first_name'].' '.$_POST['last_name']);
     }
+}
+
+/**
+ * get prev and next posts slug
+ */
+function get_previous_project_slug( $post_id ) {
+    global $post;
+    $oldGlobal = $post;
+    $post = get_post( $post_id );
+    $previous_post = get_previous_post();
+    $post = $oldGlobal;
+    if ( '' == $previous_post ) {
+        return '';
+    }
+    return $previous_post->post_name;
+}
+
+function get_next_project_slug( $post_id ) {
+    global $post;
+    $oldGlobal = $post;
+    $post = get_post( $post_id );
+    $next_project = get_next_post();
+    $post = $oldGlobal;
+    if ( '' == $next_project ) {
+        return '';
+    }
+    return $next_project->post_name;
 }

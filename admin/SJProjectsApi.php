@@ -16,6 +16,18 @@ class SJProjectsApi {
         wp_remote_request($url, $args);
     }
 
+    static function post($endpoint, $params) {
+        $args = array(
+            'headers' =>  array('content-type' => 'application/json'),
+            'method' => 'POST',
+            'body'    =>  json_encode($params),
+        );
+
+        $url = self::API_ENDPOINT . $endpoint;
+
+        wp_remote_request($url, $args);
+    }
+
     static function createUser($id, $email, $name) {
         $params = [
             'id' => $id,
@@ -30,11 +42,12 @@ class SJProjectsApi {
         return wp_remote_get(self::API_ENDPOINT.'accounts/'.$id);
     }
 
-    static function createProject($id, $name, $price) {
+    static function createProject($id, $name, $price, $status) {
         $params = [
             'id' => $id,
             'name' => $name,
-            'price' => $price
+            'price' => $price,
+            'status' => $status,
         ];
         self::put('projects', $params);
     }
@@ -47,7 +60,8 @@ class SJProjectsApi {
         $params = [
             'accountId' => $userId,
             'projectId' => $projectId,
-            'amount' => $amount
+            'amount' => $amount,
+            'status' => 'active',
         ];
         self::put('transactions', $params);
     }
@@ -58,9 +72,23 @@ class SJProjectsApi {
         return json_decode($response['body']);
     }
 
+    static function updateProjectTransactionsStatus($projectId, $status) {
+        $params = [
+            'status' => $status,
+        ];
+
+        self::post('transactions/update?where={"projectId":'.$projectId.'}', $params);
+    }
+
     static function getAccountBalance($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'accounts/getBalance?id='. $id);
         $balanceObject = json_decode($response['body']);
         return $balanceObject;
+    }
+
+    static function getAccountTransactions($id) {
+        $response = wp_remote_get(self::API_ENDPOINT.'transactions?filter={"include":"project", "where":{"accountId": '.$id.'}, "order":"id DESC"}');
+        $transactionsObject = json_decode($response['body']);
+        return $transactionsObject;
     }
 }
