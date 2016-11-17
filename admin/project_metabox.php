@@ -86,6 +86,7 @@ class ProjectMetabox
                 <?php wp_nonce_field($post_id, "sj-project-meta-box-nonce"); ?>
                 <p>Price</p>
                 <input type="text" name="sj_project_price" value="<?php echo $price?>" />
+                <p><input type="checkbox"/> can pledge more</p>
                 <p>Due date</p>
                 <input type="date" id="datepicker" name="sj_project_due_date" value="<?php echo $dueDate?>" />
                 <p>Status</p>

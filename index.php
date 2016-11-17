@@ -1,7 +1,7 @@
 <?php
 /*
-* Plugin Name: Projects
-* Description: Projects
+* Plugin Name: SJ Foundation
+* Description: SJ Foundation wp plugin
 * Version: 0.0.1
 * Author: SoftJourn
 * Author URI: https://softjourn.com

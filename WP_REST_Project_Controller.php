@@ -154,8 +154,7 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
      * @return WP_Error|bool
      */
     public function get_items_permissions_check( $request ) {
-        return true;
-//        return current_user_can( 'edit_posts' );
+        return current_user_can( 'edit_posts' );
     }
 
 }
