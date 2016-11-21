@@ -2,7 +2,8 @@
 
 class SJProjectsApi {
 
-    const API_ENDPOINT = 'http://node:3010/api/';
+//    const API_ENDPOINT = 'http://node:3010/api/';
+    const API_ENDPOINT = 'http://localhost:3010/api/';
 
     static function put($endpoint, $params) {
         $args = array(
@@ -53,7 +54,9 @@ class SJProjectsApi {
     }
 
     static function getProject($id) {
-        return wp_remote_get(self::API_ENDPOINT.'projects/'.$id);
+        $response = wp_remote_get(self::API_ENDPOINT.'projects/'.$id);
+        $balanceObject = json_decode($response['body']);
+        return $balanceObject;
     }
 
     static function backProject($userId, $projectId, $amount) {
