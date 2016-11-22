@@ -83,6 +83,24 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
             ),
         ) );
 
+        /**
+         * send coins to all endpoint
+         */
+        register_rest_route( $this->namespace, '/setCoinsToAll', array(
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'setCoinsToAll'),
+                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                'args' => array(
+                    'amount' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return is_numeric( $param );
+                        }
+                    ),
+                ),
+            ),
+        ) );
+
         register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)', array(
             array(
                 'methods'             => WP_REST_Server::READABLE,
@@ -126,11 +144,27 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
         $amount = (int)$params->amount;
         $userId = (int) $user->ID;
 
-        SJProjectsApi::backProject($userId, $projectId, $amount);
-
         $return = [
             'status' => 'success',
         ];
+
+        $balance = SJProjectsApi::getAccountBalance($userId);
+        $project = SJProjectsApi::getProject($projectId);
+        $projectPledgeSum = SJProjectsApi::getProjectPledgeSum($projectId);
+        $canPledge = $project->price - $projectPledgeSum;
+
+        if ($balance->amount < $amount) {
+            $return['status'] = 'error';
+            $return['message'] = 'Not enough coins';
+        } elseif ($canPledge < $amount) {
+            $return['status'] = 'error';
+            $return['message'] = 'Too much, try to pledge ' . $canPledge . ' coins';
+        } else {
+            $return['amount'] = $amount;
+            SJProjectsApi::backProject($userId, $projectId, $amount);
+        }
+
+
 
         $response = rest_ensure_response( $return );
 
@@ -155,6 +189,14 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
      */
     public function get_items_permissions_check( $request ) {
         return current_user_can( 'edit_posts' );
+    }
+
+    public function setCoinsToAll(WP_REST_Request $request) {
+        //@todo permissin check
+//        $user = wp_get_current_user();
+        $params = $request->get_body();
+        $params = json_decode($params);
+        return SJProjectsApi::setCoinsToAll($params->amount);
     }
 
 }

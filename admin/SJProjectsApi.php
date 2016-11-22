@@ -59,6 +59,15 @@ class SJProjectsApi {
         return $balanceObject;
     }
 
+    static function getProjectPledgeSum($id) {
+        $transactions = self::getProjectTransactions($id);
+        $sum = 0;
+        foreach ($transactions as $transaction) {
+            $sum += $transaction->amount;
+        }
+        return $sum;
+    }
+
     static function backProject($userId, $projectId, $amount) {
         $params = [
             'accountId' => $userId,
@@ -99,5 +108,9 @@ class SJProjectsApi {
         $response = wp_remote_get(self::API_ENDPOINT.'transactions?filter={"include":"project", "where":{"accountId": '.$id.'}, "order":"id DESC"}');
         $transactionsObject = json_decode($response['body']);
         return $transactionsObject;
+    }
+
+    static function setCoinsToAll($amount) {
+        wp_remote_get('setCoinsToAll?amount='.$amount);
     }
 }
