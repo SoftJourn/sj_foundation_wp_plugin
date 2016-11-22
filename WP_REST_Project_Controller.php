@@ -84,7 +84,7 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
         ) );
 
         /**
-         * send coins to all endpoint
+         * endpoint for sending coins to all accounts
          */
         register_rest_route( $this->namespace, '/setCoinsToAll', array(
             array(
@@ -156,12 +156,20 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
         if ($balance->amount < $amount) {
             $return['status'] = 'error';
             $return['message'] = 'Not enough coins';
-        } elseif ($canPledge < $amount) {
+        } elseif ((int)$project->price > 0 && $canPledge < $amount && !$project->canDonateMore) {
             $return['status'] = 'error';
             $return['message'] = 'Too much, try to pledge ' . $canPledge . ' coins';
         } else {
             $return['amount'] = $amount;
             SJProjectsApi::backProject($userId, $projectId, $amount);
+        }
+
+        $newProject = SJProjectsApi::getProject($projectId);
+        $projectPledgeSum = SJProjectsApi::getProjectPledgeSum($projectId);
+
+        if($newProject->price <= $projectPledgeSum) {
+            SJProjectsApi::updateProjectStatus($projectId, 'founded');
+            SJProjectsApi::updateProjectTransactionsStatus($projectId, 'founded');
         }
 
 
@@ -192,11 +200,12 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
     }
 
     public function setCoinsToAll(WP_REST_Request $request) {
-        //@todo permissin check
-//        $user = wp_get_current_user();
-        $params = $request->get_body();
-        $params = json_decode($params);
-        return SJProjectsApi::setCoinsToAll($params->amount);
+        if(!current_user_can('administrator')) {
+            return 'error';
+        }
+
+        $amount = $request->get_param('amount');
+        return SJProjectsApi::setCoinsToAll((int)$amount);
     }
 
 }

@@ -43,12 +43,13 @@ class SJProjectsApi {
         return wp_remote_get(self::API_ENDPOINT.'accounts/'.$id);
     }
 
-    static function createProject($id, $name, $price, $status) {
+    static function createProject($id, $name, $price, $status, $canDonateMore = false) {
         $params = [
             'id' => $id,
             'name' => $name,
             'price' => $price,
             'status' => $status,
+            'canDonateMore' => $canDonateMore
         ];
         self::put('projects', $params);
     }
@@ -98,6 +99,14 @@ class SJProjectsApi {
         self::post('transactions/update?where={"projectId":'.$projectId.'}', $params);
     }
 
+    static function updateProjectStatus($projectId, $status) {
+        $params = [
+            'status' => $status,
+        ];
+
+        self::post('projects/update?where={"id":'.$projectId.'}', $params);
+    }
+
     static function getAccountBalance($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'accounts/getBalance?id='. $id);
         $balanceObject = json_decode($response['body']);
@@ -111,6 +120,6 @@ class SJProjectsApi {
     }
 
     static function setCoinsToAll($amount) {
-        wp_remote_get('setCoinsToAll?amount='.$amount);
+        return wp_remote_get(self::API_ENDPOINT . 'accounts/setCoinsToAll?amount='.(int)$amount);
     }
 }

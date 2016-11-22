@@ -70,7 +70,10 @@ class ProjectMetabox
 
         $priceTaxonomy = wp_get_post_terms($post_id, 'sj_project_price', array('fields' => 'all'));
         $dueDateTaxonomy = wp_get_post_terms($post_id, 'sj_project_due_date', array('fields' => 'all'));
+        $project = SJProjectsApi::getProject($post_id);
 
+
+        $canDonateMore = false;
         $price = '';
         $dueDate = '';
         if (isset($priceTaxonomy[0])) {
@@ -79,6 +82,9 @@ class ProjectMetabox
         if (isset($dueDateTaxonomy[0])) {
             $dueDate = $dueDateTaxonomy[0]->name;
         }
+        if ($project && $project->canDonateMore) {
+            $canDonateMore = $project->canDonateMore;
+        }
         ?>
 
         <div>
@@ -86,14 +92,14 @@ class ProjectMetabox
                 <?php wp_nonce_field($post_id, "sj-project-meta-box-nonce"); ?>
                 <p>Price</p>
                 <input type="text" name="sj_project_price" value="<?php echo $price?>" />
-                <p><input type="checkbox"/> can pledge more</p>
+                <p><input type="checkbox" name="sj_project_can_donate_more" <?php echo $canDonateMore ? 'checked': '' ?> /> can donate more</p>
                 <p>Due date</p>
                 <input type="date" id="datepicker" name="sj_project_due_date" value="<?php echo $dueDate?>" />
                 <p>Status</p>
                 <select name="sj_project_status">
-                    <option value="active">Active</option>
-                    <option value="founded">Founded</option>
-                    <option value="not_founded">Not Founded</option>
+                    <option value="active">Donation open</option>
+                    <option value="founded">Won</option>
+                    <option value="not_founded">Last</option>
                 </select>
             </form>
         </div>
@@ -112,8 +118,9 @@ class ProjectMetabox
         $price = $this->getPricePostData();
         $dueDate = $this->getDueDatePostData();
         $status = $this->getStatusPostData();
+        $canDonateMore = $this->getCanDonateMore();
 
-        SJProjectsApi::createProject($post_id, $_POST['post_title'], $price, $status);
+        SJProjectsApi::createProject($post_id, $_POST['post_title'], $price, $status, $canDonateMore);
         SJProjectsApi::updateProjectTransactionsStatus($post_id, $status);
 
         wp_set_object_terms( $post_id, [ $price ], 'sj_project_price', false );
@@ -154,6 +161,18 @@ class ProjectMetabox
             return '';
         }
         return sanitize_text_field($post['sj_project_status']);
+    }
+
+    /**
+     * get can donate more
+     * @return string
+     */
+    public function getCanDonateMore() {
+        $post = $_POST;
+        if (!isset($post['sj_project_can_donate_more'])) {
+            return false;
+        }
+        return $post['sj_project_can_donate_more'] === 'on';
     }
 
 
