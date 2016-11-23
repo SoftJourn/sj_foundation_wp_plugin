@@ -151,16 +151,15 @@ init_project_meta_box();
  */
 add_filter('show_admin_bar', '__return_false');
 
-
 /**
  *
  * CREATE/UPDATE USER ACTIONS
  */
 add_action( 'user_register', 'registration_save', 10, 1 );
 function registration_save( $user_id ) {
-
+    $name = isset($_POST['first_name']) ? $_POST['first_name'] : '' . isset($_POST['last_name']) ? $_POST['last_name'] : '';
     if ( isset( $_POST['email'] ) ) {
-        SJProjectsApi::createUser($user_id, $_POST['email'], $_POST['first_name'].' '.$_POST['last_name']);
+        SJProjectsApi::createUser($user_id, $_POST['email'], $name);
     }
 
 }
