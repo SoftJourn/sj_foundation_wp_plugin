@@ -103,6 +103,8 @@ function my_rest_prepare_post( $data, $post, $request ) {
     $priceTaxonomy = wp_get_post_terms($post->ID, 'sj_project_price', array('fields' => 'all'));
     $dueDateTaxonomy = wp_get_post_terms($post->ID, 'sj_project_due_date', array('fields' => 'all'));
 
+    $projectApiData = SJProjectsApi::getProject($post->ID);
+
     $price = '';
     $dueDate = '';
     if (isset($priceTaxonomy[0])) {
@@ -124,13 +126,27 @@ function my_rest_prepare_post( $data, $post, $request ) {
         $attachments[] = $attachment;
     }
 
+    $now = new DateTime();
+    $dateDueDateTime = new DateTime($dueDate);
+    $days = (int)$now->diff($dateDueDateTime)->days;
+    $donationType = 'closed';
+    if (
+        $days > 0 &&
+        isset($projectApiData->status) &&
+        (($projectApiData->status === 'active' || $projectApiData->canDonateMore) || !$projectApiData->price)
+    ) {
+        $donationType = 'open';
+    }
+
     $_data['attachments'] = $attachments;
+    $_data['donation_type'] = $donationType;
     $_data['price'] = $price;
+    $_data['days_remain'] = $days;
     $_data['due_date'] = $dueDate;
-    $_data['api_data'] = SJProjectsApi::getProject($post->ID);
+    $_data['api_data'] = $projectApiData;
     $_data['transactions'] = SJProjectsApi::getProjectTransactions($post->ID);
     $_data['user_transactions'] = SJProjectsApi::getProjectAccountTransactions($user->ID, $post->ID);
-
+    $_data['comments_count'] = wp_count_comments( $post->ID );
     $_data['prev_project'] = get_previous_project_slug($post->ID);
     $_data['next_project'] = get_next_project_slug($post->ID);
 
