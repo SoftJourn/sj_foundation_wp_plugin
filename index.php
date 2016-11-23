@@ -149,6 +149,7 @@ function my_rest_prepare_post( $data, $post, $request ) {
     $_data['comments_count'] = wp_count_comments( $post->ID );
     $_data['prev_project'] = get_previous_project_slug($post->ID);
     $_data['next_project'] = get_next_project_slug($post->ID);
+    $_data['categories'] = wp_get_object_terms($post->ID, 'category');
 
     $data->data = $_data;
     return $data;
