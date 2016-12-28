@@ -4,6 +4,9 @@
 class SJLogin {
 
     function sj_authenticate() {
+        if (!session_id()) {
+            session_start();
+        }
         add_filter('authenticate', array($this,'authenticate'), 20, 3);
     }
 
