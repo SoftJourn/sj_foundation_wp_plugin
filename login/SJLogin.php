@@ -17,7 +17,9 @@ class SJLogin {
         }
 
         $sjAuth = new SJAuth();
-        $sjAuth->login($username, $password);
+        if(!$sjAuth->login($username, $password)) {
+            return $user;
+        }
         $sjAuth::refreshToken();
         $userData = $sjAuth::getAccount();
 
@@ -36,7 +38,6 @@ class SJLogin {
     function create_user($username, $email, $firstname, $lastname) {
         if ( empty($username) || empty($email)) return null;
         $user_id = wp_insert_user(array(
-            'ID' => $username,
             'user_login' => $username,
             'user_email' => $email,
             'first_name' => $firstname,
