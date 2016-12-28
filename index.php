@@ -22,6 +22,8 @@ require_once(ABSPATH . 'wp-content/plugins/rest-api/plugin.php');
 
 require PROJECT_PATH . 'WP_REST_Project_Controller.php';
 require PROJECT_ADMIN . 'SJProjectsApi.php';
+require PROJECT_PATH . 'login/SJAuth.php';
+require PROJECT_PATH . 'login/SJLogin.php';
 
 add_action('rest_api_init', function () {
     $myProductController = new WP_REST_Project_Controller('project_type');
@@ -276,3 +278,7 @@ function project_attachments( $attachments )
 }
 
 add_action( 'attachments_register', 'project_attachments' );
+
+
+$sjLogin = new SJLogin();
+$sjLogin->sj_authenticate();
