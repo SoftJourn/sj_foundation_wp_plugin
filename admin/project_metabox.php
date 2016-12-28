@@ -26,6 +26,7 @@ class ProjectMetabox
         add_action( 'add_meta_boxes', array($this, 'add_project_metabox') );
         add_action( 'save_post', array($this, 'project_save_post_data') );
         add_action( 'init', array( $this, 'action_init_taxonomies' ) );
+        add_action( 'wp_trash_post', array($this, 'project_delete_post_data') );
         wp_enqueue_script('jquery-ui-datepicker');
     }
 
@@ -59,6 +60,10 @@ class ProjectMetabox
             'project_type',
             'side'
         );
+    }
+
+    public function project_delete_post_data($postId) {
+        SJProjectsApi::deleteProject($postId);
     }
 
     /**

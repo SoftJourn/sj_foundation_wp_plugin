@@ -29,6 +29,18 @@ class SJProjectsApi {
         wp_remote_request($url, $args);
     }
 
+    static function delete($endpoint, $params) {
+        $args = array(
+            'headers' =>  array('content-type' => 'application/json'),
+            'method' => 'DELETE',
+            'body'    =>  json_encode($params),
+        );
+
+        $url = self::API_ENDPOINT . $endpoint;
+
+        wp_remote_request($url, $args);
+    }
+
     static function createUser($id, $email, $name) {
         $params = [
             'id' => $id,
@@ -58,6 +70,10 @@ class SJProjectsApi {
         $response = wp_remote_get(self::API_ENDPOINT.'projects/'.$id);
         $balanceObject = json_decode($response['body']);
         return $balanceObject;
+    }
+
+    static function deleteProject($id) {
+        self::delete('projects/' . $id, []);
     }
 
     static function getProjectPledgeSum($id) {
