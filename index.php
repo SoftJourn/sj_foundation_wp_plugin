@@ -22,6 +22,7 @@ require_once(ABSPATH . 'wp-content/plugins/rest-api/plugin.php');
 
 require PROJECT_PATH . 'WP_REST_Project_Controller.php';
 require PROJECT_ADMIN . 'SJProjectsApi.php';
+require PROJECT_ADMIN. 'ErisContractAPI.php';
 require PROJECT_PATH . 'login/SJAuth.php';
 require PROJECT_PATH . 'login/SJLogin.php';
 
