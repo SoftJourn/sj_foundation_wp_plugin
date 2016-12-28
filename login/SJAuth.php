@@ -5,9 +5,15 @@ class SJAuth {
     const BASE_URL = 'https://vending.softjourn.if.ua/api/';
     const BASE_KEY = 'dXNlcl9jcmVkOnN1cGVyc2VjcmV0';
 
-
     static function getAccessToken() {
+        self::checkTokenExpiration();
         return $_SESSION['access_token'];
+    }
+
+    static function checkTokenExpiration() {
+        if (time() > $_SESSION['token_expiration']) {
+            self::refreshToken();
+        }
     }
 
     function login($username, $password)
@@ -29,10 +35,13 @@ class SJAuth {
         curl_close ($ch);
 
         $body = json_decode($body);
+        if (!isset($body->refresh_token)) {
+            return false;
+        }
 
-        $_SESSION['token'] = $body->token;
-        $_SESSION['refresh_token'] = $body->token;
-        $_SESSION['access_token'] = $body->token;
+        $_SESSION['refresh_token'] = $body->refresh_token;
+        $_SESSION['access_token'] = $body->access_token;
+        $_SESSION['token_expiration'] = time() + $body->expires_in;
 
         return $body;
     }
