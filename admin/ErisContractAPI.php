@@ -33,7 +33,8 @@ class ErisContractAPI
         return $resultArray;
     }
 
-    static function getCurrencyContractTypes(){
+    static function getCurrencyContractTypes()
+    {
         $baseUrl = self::BASE_URL;
         $currencyType = self::CURRENCY_TYPE;
         $token = SJAuth::getAccessToken();
@@ -51,7 +52,8 @@ class ErisContractAPI
         return $resultArray;
     }
 
-    static function getInstances($id){
+    static function getInstances($id)
+    {
         $baseUrl = self::BASE_URL;
         $token = SJAuth::getAccessToken();
 
@@ -69,7 +71,8 @@ class ErisContractAPI
         return $resultArray;
     }
 
-    static function createContract($ContractId){
+    static function createContract($projectId,$options)
+    {
         //TODO parameters
         //TODO get eris address of project creator
         //address ifSuccessfulSendTo,
@@ -77,16 +80,42 @@ class ErisContractAPI
         //      uint durationInMinutes,
         //      bool onGoalReached,
         //      address[] addressOfTokensAccumulated
+
+        $data = array("contractId" => $projectId, "parameters" => $options);
+        $json = json_encode($data);
         $curl = curl_init();
         $baseUrl = self::BASE_URL;
+        $token = SJAuth::getAccessToken();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_URL => "${baseUrl}/api/v1/contracts/instances",
             CURLOPT_POST => 1,
-            CURL
+            CURLOPT_HTTPHEADER => array("Authorization: bearer ${token}"),
+            CURLOPT_POSTFIELDS => $json
         ));
         $resp = curl_exec($curl);
         curl_close($curl);
+        var_dump(json_decode($resp));
+    }
+
+    static function getOwnerErisAccount()
+    {
+        return  self::getErisUser()->address;
+    }
+
+    static function getErisUser(){
+        $curl = curl_init();
+        $baseUrl = self::BASE_URL;
+        $token = SJAuth::getAccessToken();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => "${baseUrl}/api/v1/eris/account",
+            CURLOPT_HTTPHEADER => array("Authorization: bearer ${token}")
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+        $user = json_decode($resp);
+        return $user;
     }
 
 }
