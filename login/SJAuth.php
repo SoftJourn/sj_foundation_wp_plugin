@@ -63,6 +63,10 @@ class SJAuth {
         $header = substr($response, 0, $header_size);
         $body = substr($response, $header_size);
 
+        $_SESSION['refresh_token'] = $body->refresh_token;
+        $_SESSION['access_token'] = $body->access_token;
+        $_SESSION['token_expiration'] = time() + $body->expires_in;
+
         curl_close ($ch);
 
         return json_decode($body);
