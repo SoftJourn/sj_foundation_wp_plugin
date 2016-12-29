@@ -90,12 +90,18 @@ class ErisContractAPI
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_URL => "${baseUrl}/api/v1/contracts/instances",
             CURLOPT_POST => 1,
-            CURLOPT_HTTPHEADER => array("Authorization: bearer ${token}"),
+            CURLOPT_HTTPHEADER => array("Authorization: bearer ${token}"
+            ,"Content-Type: application/json"),
             CURLOPT_POSTFIELDS => $json
         ));
         $resp = curl_exec($curl);
         curl_close($curl);
-        var_dump(json_decode($resp));
+        $resp = json_decode($resp);
+        if(isset($resp->address)){
+            //TODO save contract address
+        }
+
+        die;
     }
 
     static function getOwnerErisAccount()
