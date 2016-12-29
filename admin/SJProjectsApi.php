@@ -68,6 +68,9 @@ class SJProjectsApi {
 
     static function getProject($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'projects/'.$id);
+        if (get_class($response) === 'WP_Error') {
+            return [];
+        }
         $balanceObject = json_decode($response['body']);
         return $balanceObject;
     }
@@ -97,13 +100,17 @@ class SJProjectsApi {
 
     static function getProjectTransactions($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'projects/'. $id .'/transactions');
-
+        if (get_class($response) === 'WP_Error') {
+            return [];
+        }
         return json_decode($response['body']);
     }
 
     static function getProjectAccountTransactions($userId, $projectId) {
         $response = wp_remote_get(self::API_ENDPOINT.'accounts/'. $userId .'/transactions?filter={"where":{"projectId":'.$projectId.'}}');
-
+        if (get_class($response) === 'WP_Error') {
+            return [];
+        }
         return json_decode($response['body']);
     }
 
@@ -125,12 +132,18 @@ class SJProjectsApi {
 
     static function getAccountBalance($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'accounts/getBalance?id='. $id);
+        if (get_class($response) === 'WP_Error') {
+            return ['amount' => 0];
+        }
         $balanceObject = json_decode($response['body']);
         return $balanceObject;
     }
 
     static function getAccountTransactions($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'transactions?filter={"include":"project", "where":{"accountId": '.$id.'}, "order":"id DESC"}');
+        if (get_class($response) === 'WP_Error') {
+            return [];
+        }
         $transactionsObject = json_decode($response['body']);
         return $transactionsObject;
     }

@@ -84,7 +84,6 @@ function project_post_type() {
         'show_in_rest'          => true,
         'rest_base'             => 'projects',
         'rest_controller_class' => 'WP_REST_Project_Controller',
-//        'rest_controller_class' => 'WP_REST_Posts_Controller',
     );
     register_post_type( 'project_type', $args );
 }
@@ -146,7 +145,7 @@ function my_rest_prepare_post( $data, $post, $request ) {
     $_data['price'] = $price;
     $_data['days_remain'] = $days;
     $_data['due_date'] = $dueDate;
-    $_data['api_data'] = $projectApiData;
+    $_data['api_data'] = $projectApiData ? $projectApiData : ['canDonateMore' => false];
     $_data['transactions'] = SJProjectsApi::getProjectTransactions($post->ID);
     $_data['user_transactions'] = SJProjectsApi::getProjectAccountTransactions($user->ID, $post->ID);
     $_data['comments_count'] = wp_count_comments( $post->ID );
@@ -280,6 +279,34 @@ function project_attachments( $attachments )
 
 add_action( 'attachments_register', 'project_attachments' );
 
+
+function custom_menu_page_removing() {
+    remove_menu_page( 'edit.php' );
+    remove_menu_page( 'tools.php' );
+}
+add_action( 'admin_menu', 'custom_menu_page_removing' );
+
+function change_post_preview_link($preview_link, $post) {
+
+    return home_url().'/preview/'.$post->ID;
+}
+add_filter( 'preview_post_link', 'change_post_preview_link', 10, 2 );
+
+function after_login_default_page() {
+    return '/';
+}
+
+add_filter('login_redirect', 'after_login_default_page');
+
+function remove_dashboard_meta() {
+    remove_meta_box( 'dashboard_incoming_links', 'dashboard', 'normal' );
+    remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
+    remove_meta_box( 'dashboard_secondary', 'dashboard', 'normal' );
+    remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
+    remove_meta_box( 'dashboard_recent_drafts', 'dashboard', 'side' );
+    remove_meta_box( 'dashboard_right_now', 'dashboard', 'normal' );
+}
+add_action( 'admin_init', 'remove_dashboard_meta' );
 
 $sjLogin = new SJLogin();
 $sjLogin->sj_authenticate();
