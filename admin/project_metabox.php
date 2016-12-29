@@ -90,7 +90,7 @@ class ProjectMetabox
         if ($project && $project->canDonateMore) {
             $canDonateMore = $project->canDonateMore;
         }
-        $json = ErisContractAPI::getContractTypes();
+        $json = ErisContractAPI::getProjectContractTypes();
         ?>
 
         <div>
@@ -114,7 +114,7 @@ class ProjectMetabox
             <p>Contract type</p>
             <select name="sj_project_contract_type">
                 <?php foreach ($json as $value)
-                    echo "<option>$value->name</option>" ?>
+                    echo "<option value='$value->id'>$value->name</option>" ?>
             </select>
 
         </div>
@@ -133,15 +133,10 @@ class ProjectMetabox
         $dueDate = $this->getDueDatePostData();
         $status = $this->getStatusPostData();
         $canDonateMore = $this->getCanDonateMore();
+        $projectTypeId = $this->getPostContractType();
 
         SJProjectsApi::createProject($post_id, $_POST['post_title'], $price, $status, $canDonateMore);
         SJProjectsApi::updateProjectTransactionsStatus($post_id, $status);
-
-        $contractTypeName = $this->getPostContractType();
-
-        $contractTypeId = ErisContractAPI::getIdFromName($contractTypeName);
-
-        var_dump($contractTypeId);
 
         wp_set_object_terms( $post_id, [ $price ], 'sj_project_price', false );
         wp_set_object_terms( $post_id, [ $dueDate ], 'sj_project_due_date', false );
