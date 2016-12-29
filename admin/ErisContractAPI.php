@@ -16,8 +16,8 @@ class ErisContractAPI
         $baseUrl = self::BASE_URL;
         $projectType = self::PROJECT_TYPE;
         $token = SJAuth::getAccessToken();
-        echo "TOKEN:";
-        var_dump(SJAuth::getAccessToken());
+//        echo "TOKEN:";
+//        var_dump(SJAuth::getAccessToken());
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -69,14 +69,21 @@ class ErisContractAPI
         return $resultArray;
     }
 
-    static function createContract($id){
+    static function createContract($ContractId){
+        //TODO parameters
+        //TODO get eris address of project creator
+        //address ifSuccessfulSendTo,
+        //        uint fundingGoalInTokens,
+        //      uint durationInMinutes,
+        //      bool onGoalReached,
+        //      address[] addressOfTokensAccumulated
         $curl = curl_init();
         $baseUrl = self::BASE_URL;
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_URL => "${baseUrl}/api/v1/contracts/instances",
             CURLOPT_POST => 1,
-
+            CURL
         ));
         $resp = curl_exec($curl);
         curl_close($curl);

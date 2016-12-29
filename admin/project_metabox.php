@@ -91,11 +91,10 @@ class ProjectMetabox
             $canDonateMore = $project->canDonateMore;
         }
         $projectTypes = ErisContractAPI::getProjectContractTypes();
-//        $crowdsale = $projectTypes[0];
-//        $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
-//        $coin = $currencyTypes[0];
-//
-//        $coins = ErisContractAPI::getInstances($coin -> id);
+        $crowdsale = $projectTypes[0];
+        $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
+        $coin = $currencyTypes[0];
+        $coins = ErisContractAPI::getInstances($coin -> id);
 //        var_dump($coins);
         ?>
 
@@ -140,7 +139,9 @@ class ProjectMetabox
         $status = $this->getStatusPostData();
         $canDonateMore = $this->getCanDonateMore();
         $projectTypeId = $this->getPostContractType();
-
+//        get_current_user();
+        //TODO create contract code
+        //TODO add parameter address of contract
         SJProjectsApi::createProject($post_id, $_POST['post_title'], $price, $status, $canDonateMore);
         SJProjectsApi::updateProjectTransactionsStatus($post_id, $status);
 
