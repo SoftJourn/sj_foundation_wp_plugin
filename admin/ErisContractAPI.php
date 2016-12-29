@@ -6,6 +6,7 @@ class ErisContractAPI
 //    const BASE_URL = "http://192.168.102.45:8888";
 
     const BASE_URL = "https://sjcoins-testing.softjourn.if.ua/coins";
+    //https://sjcoins-testing.softjourn.if.ua/coins/api/v1/contracts/types/project
     const PROJECT_TYPE = "project";
     const CURRENCY_TYPE = "currency";
 
@@ -15,7 +16,8 @@ class ErisContractAPI
         $baseUrl = self::BASE_URL;
         $projectType = self::PROJECT_TYPE;
         $token = SJAuth::getAccessToken();
-//        var_dump(SJAuth::getAccessToken());
+        echo "TOKEN:";
+        var_dump(SJAuth::getAccessToken());
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
