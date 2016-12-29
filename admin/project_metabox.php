@@ -90,7 +90,13 @@ class ProjectMetabox
         if ($project && $project->canDonateMore) {
             $canDonateMore = $project->canDonateMore;
         }
-        $json = ErisContractAPI::getProjectContractTypes();
+        $projectTypes = ErisContractAPI::getProjectContractTypes();
+//        $crowdsale = $projectTypes[0];
+        $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
+        $coin = $currencyTypes[0];
+//
+//        $coins = ErisContractAPI::getInstances($coin -> id);
+//        var_dump($coins);
         ?>
 
         <div>
@@ -113,7 +119,7 @@ class ProjectMetabox
         <div>
             <p>Contract type</p>
             <select name="sj_project_contract_type">
-                <?php foreach ($json as $value)
+                <?php foreach ($coin as $value)
                     echo "<option value='$value->id'>$value->name</option>" ?>
             </select>
 
