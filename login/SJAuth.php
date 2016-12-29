@@ -62,14 +62,16 @@ class SJAuth {
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $header = substr($response, 0, $header_size);
         $body = substr($response, $header_size);
+        curl_close ($ch);
+
+        $body=json_decode($body);
 
         $_SESSION['refresh_token'] = $body->refresh_token;
         $_SESSION['access_token'] = $body->access_token;
         $_SESSION['token_expiration'] = time() + $body->expires_in;
 
-        curl_close ($ch);
 
-        return json_decode($body);
+        return $body;
     }
 
     static function getAccount()

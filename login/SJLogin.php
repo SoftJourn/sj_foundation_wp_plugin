@@ -23,7 +23,6 @@ class SJLogin {
         if(!$sjAuth->login($username, $password)) {
             return $user;
         }
-        $sjAuth::refreshToken();
         $userData = $sjAuth::getAccount();
 
         $user = get_user_by('login', $username);
