@@ -140,13 +140,16 @@ class ProjectMetabox
         $coin = $currencyTypes[0];
         //List of currencies
         $coins = ErisContractAPI::getInstances($coin -> id);
+        $coinsAddress =[];
+        foreach ($coins as $val){
+            $coinsAddress[] = $val->address;
+        }
 
         //TODO create contract code
         //Test request string
         $address= self::getOwnerErisAccount();
-        var_dump($dueDate);
         $duration=time();
-        $options=array($address,$price, $duration, $canDonateMore, $coins);
+        $options=array($address, $price, $duration, $canDonateMore, $coinsAddress);
         var_dump($options);
         $data = array("contractId" => $projectTypeId, "parameters" => $options);
         $json = json_encode($data);
