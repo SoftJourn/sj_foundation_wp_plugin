@@ -140,6 +140,7 @@ function my_rest_prepare_post( $data, $post, $request ) {
         $donationType = 'open';
     }
 
+    $_data['contract_project'] = ErisContractAPI::getErisProjectByAddress($projectApiData->contractAddress);
     $_data['attachments'] = $attachments;
     $_data['donation_type'] = $donationType;
     $_data['price'] = $price;

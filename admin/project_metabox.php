@@ -95,6 +95,7 @@ class ProjectMetabox
             $canDonateMore = $project->canDonateMore;
         }
         $projectTypes = ErisContractAPI::getProjectContractTypes();
+
         ?>
 
         <div>
@@ -158,7 +159,7 @@ class ProjectMetabox
         //TODO create contract code
         //Test request string
         $address = ErisContractAPI::getOwnerErisAccount();
-        $options = array($address, (int) $price, (int) $duration, $canDonateMore, $coinsAddress);
+        $options = array($address, (int) $price, (int) $duration, !$canDonateMore, $coinsAddress);
         $contractAddress = ErisContractAPI::createContract($projectTypeId,$options);
         SJProjectsApi::createProject(
             $post_id,

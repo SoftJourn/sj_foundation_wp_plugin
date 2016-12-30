@@ -76,7 +76,7 @@ class SJAuth {
 
     static function getAccount()
     {
-        $accessToken = $_SESSION['access_token'];
+        $accessToken = self::getAccessToken();
         $headers = array(
             "Authorization: Bearer ${accessToken}"
         );

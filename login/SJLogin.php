@@ -47,6 +47,8 @@ class SJLogin {
         ));
 
         $user = new WP_User($user_id);
+
+        SJProjectsApi::createUser($user->ID, $user->user_email, $user->display_name);
         $user->set_role('contributor');
         return $user;
     }
