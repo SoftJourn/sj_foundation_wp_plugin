@@ -55,20 +55,32 @@ class SJProjectsApi {
         return wp_remote_get(self::API_ENDPOINT.'accounts/'.$id);
     }
 
-    static function createProject($id, $name, $price, $status, $canDonateMore = false) {
+    static function createProject(
+        $id,
+        $name,
+        $price,
+        $status,
+        $canDonateMore = false,
+        $contractAddress,
+        $duration,
+        $coinsAddress
+    ) {
         $params = [
             'id' => $id,
             'name' => $name,
             'price' => $price,
             'status' => $status,
-            'canDonateMore' => $canDonateMore
+            'canDonateMore' => $canDonateMore,
+            'contractAddress' => $contractAddress,
+            'duration' => $duration,
+            'coinsAddresses' => $coinsAddress
         ];
         self::put('projects', $params);
     }
 
     static function getProject($id) {
         $response = wp_remote_get(self::API_ENDPOINT.'projects/'.$id);
-        if (get_class($response) === 'WP_Error') {
+        if (!is_array($response)) {
             return [];
         }
         $balanceObject = json_decode($response['body']);

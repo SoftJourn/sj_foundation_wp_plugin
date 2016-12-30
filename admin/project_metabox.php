@@ -148,25 +148,36 @@ class ProjectMetabox
         $coins = ErisContractAPI::getInstances($coin->id);
         $coinsAddress = [];
         foreach ($coins as $val) {
-            $coinsAddress[] = $val->address;
+                $coinsAddress[] = $val->address;
         }
         //Date min diff
         $current = new DateTime();
-        $current->add(new DateInterval("PT2H"));
-        $current->sub(new DateInterval("P1D"));
-        $dateMinDiff = intval((strtotime(date("2016-12-29")) - $current->getTimestamp()) / 60);
+        $due = new DateTime($dueDate);
+        $duration = intval(($due->getTimestamp() - $current->getTimestamp()) / 60);
 
         //TODO create contract code
         //Test request string
         $address = ErisContractAPI::getOwnerErisAccount();
-        $options = array($address, (int) $price, (int) $dateMinDiff, $canDonateMore, $coinsAddress);
-        ErisContractAPI::createContract($projectTypeId,$options);
-        //TODO add parameter address of contract
-        SJProjectsApi::createProject($post_id, $_POST['post_title'], $price, $status, $canDonateMore);
+        $options = array($address, (int) $price, (int) $duration, $canDonateMore, $coinsAddress);
+        $contractAddress = ErisContractAPI::createContract($projectTypeId,$options);
+        SJProjectsApi::createProject(
+            $post_id,
+            $_POST['post_title'],
+            $price,
+            $status,
+            $canDonateMore,
+            $contractAddress,
+            $duration,
+            $coinsAddress
+        );
         SJProjectsApi::updateProjectTransactionsStatus($post_id, $status);
 
         wp_set_object_terms($post_id, [$price], 'sj_project_price', false);
         wp_set_object_terms($post_id, [$dueDate], 'sj_project_due_date', false);
+    }
+
+    public function createContract() {
+
     }
 
     /**

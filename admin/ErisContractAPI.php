@@ -98,10 +98,10 @@ class ErisContractAPI
         curl_close($curl);
         $resp = json_decode($resp);
         if(isset($resp->address)){
-            //TODO save contract address
+            return $resp->address;
+        } else {
+            return false;
         }
-
-        die;
     }
 
     static function getOwnerErisAccount()
