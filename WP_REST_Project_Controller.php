@@ -148,20 +148,48 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
             'status' => 'success',
         ];
 
-        $balance = SJProjectsApi::getAccountBalance($userId);
+        $balance = SJAuth::getAccount();
         $project = SJProjectsApi::getProject($projectId);
-        $projectPledgeSum = SJProjectsApi::getProjectPledgeSum($projectId);
-        $canPledge = $project->price - $projectPledgeSum;
+        $contractProject = ErisContractAPI::getErisProjectByAddress($project->contractAddress);
+
+
+        $amountRaised = $contractProject->amountRaised;
+        $foundingGoal = $contractProject->fundingGoal;
+        $closeOnGoalReached = $contractProject->closeOnGoalReached;
+        $canPledge = $foundingGoal - $amountRaised;
+
 
         if ($balance->amount < $amount) {
             $return['status'] = 'error';
             $return['message'] = 'Not enough coins';
-        } elseif ((int)$project->price > 0 && $canPledge < $amount && !$project->canDonateMore) {
+        } elseif ($foundingGoal > 0 && $canPledge < $amount && $closeOnGoalReached) {
             $return['status'] = 'error';
             $return['message'] = 'Too much, try to pledge ' . $canPledge . ' coins';
         } else {
             $return['amount'] = $amount;
-            SJProjectsApi::backProject($userId, $projectId, $amount);
+            $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
+            $coin = $currencyTypes[0];
+            $coins = ErisContractAPI::getInstances($coin->id);
+            $coinsAddress = [];
+            foreach ($coins as $val) {
+                $coinsAddress[] = $val->address;
+            }
+
+            $response = ErisContractAPI::donateProject(
+                $coinsAddress[0],
+                $project->contractAddress,
+                $amount
+            );
+
+            if (isset($response->error)) {
+                $return['status'] = 'error';
+                $return['message'] = $response->message;
+            } elseif (isset($response->transactionResult)) {
+                $return['status'] = 'error';
+                $return['message'] = 'Transaction error';
+            } else {
+                SJProjectsApi::backProject($userId, $projectId, $amount);
+            }
         }
 
         $newProject = SJProjectsApi::getProject($projectId);
@@ -180,8 +208,13 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
     }
 
     public function getBalance() {
-        $user = wp_get_current_user();
-        return SJProjectsApi::getAccountBalance($user->ID);
+//        $user = wp_get_current_user();
+//        SJProjectsApi::getAccountBalance($user->ID);
+        $account = SJAuth::getAccount();
+        if ($account) {
+            return ['amount' => $account->amount];
+        }
+        return ['amount' => 0];
     }
 
     public function getTransactions() {

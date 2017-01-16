@@ -22,6 +22,7 @@ require_once(ABSPATH . 'wp-content/plugins/rest-api/plugin.php');
 
 require PROJECT_PATH . 'WP_REST_Project_Controller.php';
 require PROJECT_ADMIN . 'SJProjectsApi.php';
+require PROJECT_ADMIN. 'ErisContractAPI.php';
 require PROJECT_PATH . 'login/SJAuth.php';
 require PROJECT_PATH . 'login/SJLogin.php';
 
@@ -139,6 +140,7 @@ function my_rest_prepare_post( $data, $post, $request ) {
         $donationType = 'open';
     }
 
+    $_data['contract_project'] = ErisContractAPI::getErisProjectByAddress($projectApiData->contractAddress);
     $_data['attachments'] = $attachments;
     $_data['donation_type'] = $donationType;
     $_data['price'] = $price;

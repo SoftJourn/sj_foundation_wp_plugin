@@ -23,7 +23,6 @@ class SJLogin {
         if(!$sjAuth->login($username, $password)) {
             return $user;
         }
-        $sjAuth::refreshToken();
         $userData = $sjAuth::getAccount();
 
         $user = get_user_by('login', $username);
@@ -48,6 +47,8 @@ class SJLogin {
         ));
 
         $user = new WP_User($user_id);
+
+        SJProjectsApi::createUser($user->ID, $user->user_email, $user->display_name);
         $user->set_role('contributor');
         return $user;
     }
