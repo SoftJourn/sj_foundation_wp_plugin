@@ -2,7 +2,8 @@
 
 class SJAuth {
 
-    const BASE_URL = 'https://vending.softjourn.if.ua/api/';
+    const BASE_URL = 'https://sjcoins-testing.softjourn.if.ua/';
+//    const BASE_URL = 'https://vending.softjourn.if.ua/api/';
     const BASE_KEY = 'dXNlcl9jcmVkOnN1cGVyc2VjcmV0';
 
     static function getAccessToken() {
@@ -33,8 +34,8 @@ class SJAuth {
         $body = substr($response, $header_size);
 
         curl_close ($ch);
-
         $body = json_decode($body);
+
         if (!isset($body->refresh_token)) {
             return false;
         }

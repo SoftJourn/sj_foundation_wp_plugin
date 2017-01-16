@@ -176,8 +176,7 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
             }
 
             $response = ErisContractAPI::donateProject(
-//                $coinsAddress[0],
-               'AB16E684DEAF5473D0A0C6B4671E796F749704C9',
+                $coinsAddress[0],
                 $project->contractAddress,
                 $amount
             );

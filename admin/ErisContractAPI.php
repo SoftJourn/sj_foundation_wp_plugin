@@ -2,11 +2,8 @@
 
 class ErisContractAPI
 {
-
-//    const BASE_URL = "http://192.168.102.45:8888";
-
     const BASE_URL = "https://sjcoins-testing.softjourn.if.ua/";
-    //https://sjcoins-testing.softjourn.if.ua/coins/api/v1/contracts/types/project
+//    const BASE_URL = 'https://vending.softjourn.if.ua/api/';
     const PROJECT_TYPE = "project";
     const CURRENCY_TYPE = "currency";
 
@@ -66,13 +63,6 @@ class ErisContractAPI
 
     static function createContract($projectId,$options)
     {
-        //TODO parameters
-        //TODO get eris address of project creator
-        //address ifSuccessfulSendTo,
-        //        uint fundingGoalInTokens,
-        //      uint durationInMinutes,
-        //      bool onGoalReached,
-        //      address[] addressOfTokensAccumulated
 
         $data = array("contractId" => $projectId, "parameters" => $options);
         $json = json_encode($data);
@@ -90,6 +80,7 @@ class ErisContractAPI
         $resp = curl_exec($curl);
         curl_close($curl);
         $resp = json_decode($resp);
+
         if(isset($resp->address)){
             return $resp->address;
         } else {
@@ -118,7 +109,9 @@ class ErisContractAPI
             'spenderAddress' => $spenderAddress,
             'amount' => $amount,
         ];
+
         $resultArray = self::sendRequestWithParams('coins/api/v1/crowdsale/donate/', $params);
+
         return $resultArray;
     }
 }

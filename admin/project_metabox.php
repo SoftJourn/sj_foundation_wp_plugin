@@ -149,7 +149,7 @@ class ProjectMetabox
         $coins = ErisContractAPI::getInstances($coin->id);
         $coinsAddress = [];
         foreach ($coins as $val) {
-                $coinsAddress[] = $val->address;
+            $coinsAddress[] = $val->address;
         }
         //Date min diff
         $current = new DateTime();
