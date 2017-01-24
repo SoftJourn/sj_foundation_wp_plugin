@@ -19,10 +19,16 @@ class SJAuth {
 
     function login($username, $password)
     {
+        $post = http_build_query([
+            'username' => $username,
+            'password' => $password,
+            'grant_type' => 'password',
+        ]);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, self::BASE_URL. 'auth/oauth/token');
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "username=${username}&password=${password}&grant_type=password");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         curl_setopt($ch, CURLOPT_USERPWD, base64_decode(self::BASE_KEY));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);

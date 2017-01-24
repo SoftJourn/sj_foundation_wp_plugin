@@ -184,7 +184,7 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
             if (isset($response->error)) {
                 $return['status'] = 'error';
                 $return['message'] = $response->message;
-            } elseif (isset($response->transactionResult)) {
+            } elseif (isset($response->transactionResult) && !$response->transactionResult) {
                 $return['status'] = 'error';
                 $return['message'] = 'Transaction error';
             } else {
