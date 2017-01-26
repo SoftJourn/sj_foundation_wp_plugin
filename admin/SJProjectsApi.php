@@ -14,7 +14,7 @@ class SJProjectsApi {
 
         $url = self::API_ENDPOINT . $endpoint;
 
-        wp_remote_request($url, $args);
+        return wp_remote_request($url, $args);
     }
 
     static function post($endpoint, $params) {
@@ -60,10 +60,9 @@ class SJProjectsApi {
         $name,
         $price,
         $status,
-        $canDonateMore = false,
-        $contractAddress,
+        $canDonateMore,
         $duration,
-        $coinsAddress
+        $dueDate
     ) {
         $params = [
             'id' => $id,
@@ -71,9 +70,18 @@ class SJProjectsApi {
             'price' => $price,
             'status' => $status,
             'canDonateMore' => $canDonateMore,
-            'contractAddress' => $contractAddress,
             'duration' => $duration,
-            'coinsAddresses' => $coinsAddress
+            'dueDate' => $dueDate,
+        ];
+        self::put('projects', $params);
+    }
+
+    static function addContractToProject($id, $contractAddress, $coinsAddress) {
+        $params = [
+            'id' => $id,
+            'contractAddress' => $contractAddress,
+            'coinsAddresses' => $coinsAddress,
+            'published' => true,
         ];
         self::put('projects', $params);
     }

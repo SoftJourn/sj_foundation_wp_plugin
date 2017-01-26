@@ -53,6 +53,12 @@ class SJAuth {
         return $body;
     }
 
+    function logout() {
+        unset($_SESSION['refresh_token']);
+        unset($_SESSION['access_token']);
+        unset($_SESSION['token_expiration']);
+    }
+
     static function refreshToken()
     {
         $refreshToken = $_SESSION['refresh_token'];
@@ -71,7 +77,7 @@ class SJAuth {
         $body = substr($response, $header_size);
         curl_close ($ch);
 
-        $body=json_decode($body);
+        $body = json_decode($body);
 
         $_SESSION['refresh_token'] = $body->refresh_token;
         $_SESSION['access_token'] = $body->access_token;
@@ -95,13 +101,12 @@ class SJAuth {
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
         $response = curl_exec ($ch);
-
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $header = substr($response, 0, $header_size);
         $body = substr($response, $header_size);
-
         curl_close ($ch);
+        $body = json_decode($body);
 
-        return json_decode($body);
+        return isset($body->error) ? null : $body;
     }
 }

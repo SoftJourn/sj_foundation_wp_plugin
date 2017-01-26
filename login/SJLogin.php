@@ -11,6 +11,8 @@ class SJLogin {
     }
 
     function authenticate($user, $username, $password) {
+        $sjAuth = new SJAuth();
+        $sjAuth->logout();
         if ( is_a($user, 'WP_User') ) {
             return $user;
         }
@@ -19,7 +21,7 @@ class SJLogin {
             return $user;
         }
 
-        $sjAuth = new SJAuth();
+
         if(!$sjAuth->login($username, $password)) {
             return $user;
         }

@@ -200,16 +200,12 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
             SJProjectsApi::updateProjectTransactionsStatus($projectId, 'founded');
         }
 
-
-
         $response = rest_ensure_response( $return );
 
         return $response;
     }
 
     public function getBalance() {
-//        $user = wp_get_current_user();
-//        SJProjectsApi::getAccountBalance($user->ID);
         $account = SJAuth::getAccount();
         if ($account) {
             return ['amount' => $account->amount];
