@@ -238,7 +238,16 @@ class ProjectMetabox
         $address = ErisContractAPI::getOwnerErisAccount();
         $options = array($address, (int) $price, (int) $duration, !$canDonateMore, $coinsAddress);
         $contractAddress = ErisContractAPI::createContract($projectTypeId,$options);
+        if (!$contractAddress) {
+            $this->unPublishPost($post_id);
+        }
         SJProjectsApi::addContractToProject($post_id, $contractAddress, $coinsAddress);
+    }
+
+    public function unPublishPost($post_id) {
+        $current_post = get_post( $post_id, 'ARRAY_A' );
+        $current_post['post_status'] = 'draft';
+        wp_update_post($current_post);
     }
 
     /**
@@ -279,6 +288,7 @@ class ProjectMetabox
         }
         $current = new DateTime();
         $due = new DateTime($post['sj_project_due_date']);
+        $due->setTime(23, 59, 59);
         $duration = intval(($due->getTimestamp() - $current->getTimestamp()) / 60);
         return $duration;
     }

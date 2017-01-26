@@ -107,14 +107,14 @@ function my_rest_prepare_post( $data, $post, $request ) {
 
     $projectApiData = SJProjectsApi::getProject($post->ID);
 
-    $price = '';
-    $dueDate = '';
-    if (isset($priceTaxonomy[0])) {
-        $price = $priceTaxonomy[0]->name;
-    }
-    if (isset($dueDateTaxonomy[0])) {
-        $dueDate = $dueDateTaxonomy[0]->name;
-    }
+    $price = $projectApiData->price;
+    $dueDate = $projectApiData->dueDate;
+//    if (isset($priceTaxonomy[0])) {
+//        $price = $priceTaxonomy[0]->name;
+//    }
+//    if (isset($dueDateTaxonomy[0])) {
+//        $dueDate = $dueDateTaxonomy[0]->name;
+//    }
 
     $attachments = [];
     $attachmentsObject = new Attachments( 'project_attachments', $post->ID );
@@ -130,12 +130,13 @@ function my_rest_prepare_post( $data, $post, $request ) {
 
     $now = new DateTime();
     $dateDueDateTime = new DateTime($dueDate);
+    $dateDueDateTime->setTime(23, 59, 59);
     $days = (int)$now->diff($dateDueDateTime)->days;
     $donationType = 'closed';
     if (
-        $days > 0 &&
+        $days >= 0 &&
         isset($projectApiData->status) &&
-        (($projectApiData->status === 'active' || $projectApiData->canDonateMore) || !$projectApiData->price)
+        (($projectApiData->status === '' || $projectApiData->canDonateMore) || !$projectApiData->price)
     ) {
         $donationType = 'open';
     }
