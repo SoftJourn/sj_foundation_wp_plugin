@@ -306,6 +306,7 @@ function remove_dashboard_meta() {
     remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
     remove_meta_box( 'dashboard_recent_drafts', 'dashboard', 'side' );
     remove_meta_box( 'dashboard_right_now', 'dashboard', 'normal' );
+    remove_meta_box( 'commentstatusdiv', 'post_project_type', 'normal' );
 }
 add_action( 'admin_init', 'remove_dashboard_meta' );
 

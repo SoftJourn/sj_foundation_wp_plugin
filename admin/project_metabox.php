@@ -33,6 +33,7 @@ class ProjectMetabox
         add_action('wp_trash_post', array($this, 'project_delete_post_data'));
         add_action( 'admin_notices', array($this, 'ldap_admin_notice') );
         add_action( 'admin_head', array($this, 'hide_publish_button_editor') );
+        add_action( 'admin_head', array($this, 'hide_comments_metabox') );
     }
 
     public function ldap_admin_notice() {
@@ -55,6 +56,14 @@ class ProjectMetabox
         ?>
             <style>
                 #publishing-action { display: none; }
+            </style>
+        <?php
+    }
+
+    public function hide_comments_metabox() {
+        ?>
+            <style>
+                #commentstatusdiv { display: none; }
             </style>
         <?php
     }
