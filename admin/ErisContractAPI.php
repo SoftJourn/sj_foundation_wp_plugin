@@ -19,7 +19,6 @@ class ErisContractAPI
         ));
         $resp = curl_exec($curl);
         curl_close($curl);
-
         return json_decode($resp);
     }
 
@@ -112,6 +111,11 @@ class ErisContractAPI
 
         $resultArray = self::sendRequestWithParams('coins/api/v1/crowdsale/donate/', $params);
 
+        return $resultArray;
+    }
+
+    static function withdraw($address) {
+        $resultArray = self::sendRequestWithParams("coins/api/v1/crowdsale/withdraw/${address}", []);
         return $resultArray;
     }
 }

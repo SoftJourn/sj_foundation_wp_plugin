@@ -68,6 +68,14 @@ class ProjectMetabox
         <?php
     }
 
+    public function showError($message) {
+        ?>
+        <div class="error">
+            <p><?php _e( $message, 'sj_foundation_domain'.$message ); ?></p>
+        </div>
+        <?php
+    }
+
     public function action_init_taxonomies()
     {
 
@@ -239,6 +247,7 @@ class ProjectMetabox
         $options = array($address, (int) $price, (int) $duration, !$canDonateMore, $coinsAddress);
         $contractAddress = ErisContractAPI::createContract($projectTypeId,$options);
         if (!$contractAddress) {
+            $this->showError('Error create crowdsale contract');
             $this->unPublishPost($post_id);
         }
         SJProjectsApi::addContractToProject($post_id, $contractAddress, $coinsAddress);
