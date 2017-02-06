@@ -5,6 +5,7 @@ namespace SJFoundation;
 use Attachments;
 use DateTime;
 use SJFoundation\Admin\ProjectMetabox;
+use SJFoundation\Api\RestController;
 use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
 use SJFoundation\Infrastructure\SJLogin;
 use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
@@ -19,6 +20,7 @@ class SJFoundationProjectType {
 
         $sjLogin = new SJLogin();
         $sjLogin->sj_authenticate();
+        $this->initProjectMetabox();
 
         add_action('rest_api_init', array($this, 'initRoutes'));
         add_action( 'init', array($this, 'initProjectPostType'), 0 );
@@ -29,9 +31,8 @@ class SJFoundationProjectType {
         add_filter( 'rest_prepare_project_type', [$this, 'prepareProjectPost'], 10, 3 );
         add_filter( 'preview_post_link', [$this, 'change_post_preview_link'], 10, 2 );
         add_filter( 'excerpt_length', array($this, 'wpdocs_custom_excerpt_length'), 999 );
-
         add_image_size( 'project-image-size', 620, 320 );
-        $this->initProjectMetabox();
+
     }
 
     function set_default_admin_color($user_id) {
@@ -238,10 +239,10 @@ class SJFoundationProjectType {
         $attachments->register( 'project_attachments', $args ); // unique instance name
     }
 
-    public function custom_menu_page_removing() {
-        remove_menu_page( 'edit.php' );
-        remove_menu_page( 'tools.php' );
-    }
+//    public function custom_menu_page_removing() {
+//        remove_menu_page( 'edit.php' );
+//        remove_menu_page( 'tools.php' );
+//    }
 
     public function change_post_preview_link($preview_link, $post) {
 

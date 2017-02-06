@@ -1,6 +1,6 @@
 <?php
 
-namespace SJFoundation;
+namespace SJFoundation\Api;
 
 use WP_Error;
 use WP_REST_Server;

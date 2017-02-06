@@ -2,27 +2,21 @@
 
 namespace SJFoundation\Admin;
 
-use DateTime;
+use SJFoundation\Admin\Mapper\MetaBoxFormMapper;
+use SJFoundation\Domain\Service\ProjectService;
+use SJFoundation\Domain\User;
 use SJFoundation\Infrastructure\SJAuth;
 use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
 use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
+use Timber\Timber;
 
 class ProjectMetabox
 {
-
-    protected static $taxonomies = array('event_category');
-
-    const METABOX_TEMPLATE = 'project_metabox.php';
 
     const PROJECT_STATUS_ACTIVE = 'active';
     const PROJECT_STATUS_FOUNDED = 'active';
     const PROJECT_STATUS_NOT_FOUNDED = 'active';
 
-    private $statuses = [
-        'active' => 'Active',
-        'founded' => 'Founded',
-        'not_founded' => 'Not Founded',
-    ];
 
     /**
      * init meta box
@@ -39,7 +33,7 @@ class ProjectMetabox
         add_action('wp_trash_post', array($this, 'project_delete_post_data'));
         add_action( 'admin_notices', array($this, 'ldap_admin_notice') );
         add_action( 'admin_head', array($this, 'hide_publish_button_editor') );
-        add_action( 'admin_head', array($this, 'hide_comments_metabox') );
+//        add_action( 'admin_head', array($this, 'hide_comments_metabox') );
     }
 
     public function ldap_admin_notice() {
@@ -104,13 +98,12 @@ class ProjectMetabox
 
     }
 
-
     public function add_project_metabox()
     {
         add_meta_box(
             'sj_project_metabox',
             __('Project Meta', 'sj_projects'),
-            array($this, 'render_project_metabox'),
+            array($this, 'renderMetaBox'),
             'project_type',
             'side'
         );
@@ -119,54 +112,6 @@ class ProjectMetabox
     public function project_delete_post_data($postId)
     {
         SJProjectsApi::deleteProject($postId);
-    }
-
-    /**
-     * render meta box
-     * @return string
-     */
-    public function render_project_metabox()
-    {
-        $post_id = get_the_ID();
-        $project = SJProjectsApi::getProject($post_id);
-
-        $canDonateMore = false;
-        $price = 0;
-        $dueDate = '';
-        if (!isset($project->error)) {
-            if ($project->published) {
-                $this->renderPublishedMetaBox();
-                return;
-            }
-            $price = $project->price;
-            $canDonateMore = $project->canDonateMore;
-            $dueDate = date_create($project->dueDate)->format('Y-m-d');
-        }
-
-        $projectTypes = ErisContractAPI::getProjectContractTypes();
-
-        ?>
-            <div>
-                <form>
-                    <?php wp_nonce_field($post_id, "sj-project-meta-box-nonce"); ?>
-                    <p>Price</p>
-                    <input type="text" name="sj_project_price" value="<?php echo $price ?>"/>
-                    <p><input type="checkbox"
-                              name="sj_project_can_donate_more" <?php echo $canDonateMore ? 'checked' : '' ?> /> can donate
-                        more</p>
-                    <p>Due date</p>
-                    <input type="date" id="datepicker" name="sj_project_due_date" value="<?php echo $dueDate; ?>"/>
-                </form>
-            </div>
-
-            <div>
-                <p>Contract type</p>
-                <select name="sj_project_contract_type">
-                    <?php foreach ($projectTypes as $value)
-                        echo "<option value='$value->id'>$value->name</option>" ?>
-                </select>
-            </div>
-        <?php
     }
 
     public function renderPublishedMetaBox() {
@@ -201,31 +146,28 @@ class ProjectMetabox
     }
 
 
-    public function project_save_post_data($post_id)
+    public function project_save_post_data($postId)
     {
-        if (!$this->checkPostData($post_id)) {
+        if (!$this->checkPostData($postId)) {
             return false;
         }
 
-        $price = $this->getPricePostData();
-        $dueDate = $this->getDueDatePostData();
-        $status = $this->getStatusPostData();
-        $canDonateMore = $this->getCanDonateMore();
-        $duration = $this->getDurationPostData();
+        $metaBoxFormMapper = new MetaBoxFormMapper();
+        $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
 
         SJProjectsApi::createProject(
-            $post_id,
-            $_POST['post_title'],
-            $price,
-            $status,
-            $canDonateMore,
-            $duration,
-            $dueDate
+            $metaBoxFormModel->id,
+            $metaBoxFormModel->title,
+            $metaBoxFormModel->price,
+            $metaBoxFormModel->status,
+            $metaBoxFormModel->canDonateMore,
+            $metaBoxFormModel->duration,
+            $metaBoxFormModel->dueDate
         );
-        SJProjectsApi::updateProjectTransactionsStatus($post_id, $status);
+        SJProjectsApi::updateProjectTransactionsStatus($postId, $metaBoxFormModel->status);
 
-        wp_set_object_terms($post_id, [$price], 'sj_project_price', false);
-        wp_set_object_terms($post_id, [$dueDate], 'sj_project_due_date', false);
+        wp_set_object_terms($postId, [$metaBoxFormModel->price], 'sj_project_price', false);
+        wp_set_object_terms($postId, [$metaBoxFormModel->dueDate], 'sj_project_due_date', false);
     }
 
     public function project_publish_post_data($post_id) {
@@ -237,12 +179,8 @@ class ProjectMetabox
     }
 
     public function createErisContract($post_id) {
-        $price = $this->getPricePostData();
-        $dueDate = $this->getDueDatePostData();
-        $canDonateMore = $this->getCanDonateMore();
-        $projectTypeId = $this->getPostContractType();
-        $duration = $this->getDurationPostData();
-
+        $metaBoxFormMapper = new MetaBoxFormMapper();
+        $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
         $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
         $coin = $currencyTypes[0];
         //List of currencies
@@ -252,14 +190,25 @@ class ProjectMetabox
             $coinsAddress[] = $val->address;
         }
         $address = ErisContractAPI::getOwnerErisAccount();
-        $options = array($address, (int) $price, (int) $duration, !$canDonateMore, $coinsAddress);
-        $contractAddress = ErisContractAPI::createContract($projectTypeId,$options);
-        if (!$contractAddress || true) {
+        $options = array(
+            $address,
+            (int)$metaBoxFormModel->price,
+            (int)$metaBoxFormModel->duration,
+            !$metaBoxFormModel->canDonateMore,
+            $coinsAddress
+        );
+
+        $contractApiResponse = ErisContractAPI::createContract(
+            $metaBoxFormModel->projectTypeId,
+            $metaBoxFormModel->title,
+            $options
+        );
+        if (!$contractApiResponse['address']) {
             add_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
             $this->unPublishPost($post_id);
             return;
         }
-        SJProjectsApi::addContractToProject($post_id, $contractAddress, $coinsAddress);
+        SJProjectsApi::addContractToProject($post_id, $contractApiResponse['address'], $coinsAddress);
     }
 
     public function add_notice_contract_error( $location ) {
@@ -271,88 +220,6 @@ class ProjectMetabox
         $current_post = get_post( $post_id, 'ARRAY_A' );
         $current_post['post_status'] = 'draft';
         wp_update_post($current_post);
-    }
-
-    /**
-     * get due date value from post
-     * @return string
-     */
-    public function getPostContractType()
-    {
-        $post = $_POST;
-        if (!isset($post['sj_project_contract_type'])) {
-            return '';
-        }
-        return sanitize_text_field($post['sj_project_contract_type']);
-    }
-
-    /**
-     * get price value from post
-     * @return string
-     */
-    public function getPricePostData()
-    {
-        $post = $_POST;
-        if (!isset($post['sj_project_price'])) {
-            return '';
-        }
-        return sanitize_text_field($post['sj_project_price']);
-    }
-
-    /**
-     * get due date value from post
-     * @return int
-     */
-    public function getDurationPostData()
-    {
-        $post = $_POST;
-        if (!isset($post['sj_project_due_date'])) {
-            return '';
-        }
-        $current = new DateTime();
-        $due = new DateTime($post['sj_project_due_date']);
-        $due->setTime(23, 59, 59);
-        $duration = intval(($due->getTimestamp() - $current->getTimestamp()) / 60);
-        return $duration;
-    }
-
-    /**
-     * get duration
-     * @return string
-     */
-    public function getDueDatePostData()
-    {
-        $post = $_POST;
-        if (!isset($post['sj_project_due_date'])) {
-            return '';
-        }
-        return sanitize_text_field($post['sj_project_due_date']);
-    }
-
-    /**
-     * get due date value from post
-     * @return string
-     */
-    public function getStatusPostData()
-    {
-        $post = $_POST;
-        if (!isset($post['sj_project_status'])) {
-            return '';
-        }
-        return sanitize_text_field($post['sj_project_status']);
-    }
-
-    /**
-     * get can donate more
-     * @return string
-     */
-    public function getCanDonateMore()
-    {
-        $post = $_POST;
-        if (!isset($post['sj_project_can_donate_more'])) {
-            return false;
-        }
-        return $post['sj_project_can_donate_more'] === 'on';
     }
 
     /**
@@ -372,4 +239,16 @@ class ProjectMetabox
         return false;
     }
 
+    public function renderMetaBox() {
+
+        $projectService = new ProjectService();
+
+        $context = Timber::get_context();
+        $context['project'] = $projectService->getProject();
+        $context['isModerator'] = User::isModerator();
+        $context['projectTypes'] = $projectService->getProjectContractTypes();
+        $context['wp_nonce_field'] = wp_nonce_field(get_the_ID(), "sj-project-meta-box-nonce");
+
+        Timber::render('views/metabox.html.twig', $context);
+    }
 }

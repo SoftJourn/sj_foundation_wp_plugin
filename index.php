@@ -1,7 +1,5 @@
 <?php
 
-namespace SJFoundation;
-
 /*
 * Plugin Name: SJ Foundation
 * Description: SJ Foundation wp plugin
@@ -10,10 +8,10 @@ namespace SJFoundation;
 * Author URI: https://softjourn.com
 */
 require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/config.php');
+require_once(ABSPATH . 'wp-content/plugins/rest-api/plugin.php');
 
 use SJFoundation\SJFoundationProjectType;
-
-require_once(ABSPATH . 'wp-content/plugins/rest-api/plugin.php');
 
 $sjProjectPlugin = new SJFoundationProjectType();
 $sjProjectPlugin->init();

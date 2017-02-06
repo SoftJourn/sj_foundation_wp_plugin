@@ -1,3 +1,24 @@
 <div>
-    <h3>metabox</h3>
+    {{ project.title }}
+    <form>
+        {{ wp_nonce_field }}
+        <p>Price</p>
+        <input type="text" name="sj_project_price" value="{{ project.price }}"/>
+        <p>
+            <input type="checkbox" name="sj_project_can_donate_more" {{ project.canDonateMore ? 'checked' : '' }} />
+            can donate more
+        </p>
+        <p>Due date</p>
+        <input type="date" id="datepicker" name="sj_project_due_date" value="{{ project.dueDate|date('Y-m-d') }}"/>
+    </form>
 </div>
+{% if isModerator and projectTypes|length %}
+    <div>
+        <p>Contract type</p>
+        <select name="sj_project_contract_type">
+            {% for value in projectTypes %}
+                <option value={{value.id }}>{{ value.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}

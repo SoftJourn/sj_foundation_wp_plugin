@@ -4,10 +4,6 @@ namespace SJFoundation\Infrastructure;
 
 class SJAuth {
 
-    const BASE_URL = 'https://sjcoins-testing.softjourn.if.ua/';
-//    const BASE_URL = 'https://vending.softjourn.if.ua/api/';
-    const BASE_KEY = 'dXNlcl9jcmVkOnN1cGVyc2VjcmV0';
-
     static function getAccessToken() {
         self::checkTokenExpiration();
         return $_SESSION['access_token'];
@@ -28,10 +24,10 @@ class SJAuth {
         ]);
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, self::BASE_URL. 'auth/oauth/token');
+        curl_setopt($ch, CURLOPT_URL, sjFoundationConfig()->coins_api_url . 'auth/oauth/token');
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        curl_setopt($ch, CURLOPT_USERPWD, base64_decode(self::BASE_KEY));
+        curl_setopt($ch, CURLOPT_USERPWD, base64_decode(sjFoundationConfig()->auth_base_key));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
@@ -65,10 +61,10 @@ class SJAuth {
     {
         $refreshToken = $_SESSION['refresh_token'];
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, self::BASE_URL. 'auth/oauth/token');
+        curl_setopt($ch, CURLOPT_URL, sjFoundationConfig()->coins_api_url . 'auth/oauth/token');
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, "refresh_token=${refreshToken}&grant_type=refresh_token");
-        curl_setopt($ch, CURLOPT_USERPWD, base64_decode(self::BASE_KEY));
+        curl_setopt($ch, CURLOPT_USERPWD, base64_decode(sjFoundationConfig()->auth_base_key));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
@@ -80,11 +76,11 @@ class SJAuth {
         curl_close ($ch);
 
         $body = json_decode($body);
-
-        $_SESSION['refresh_token'] = $body->refresh_token;
-        $_SESSION['access_token'] = $body->access_token;
-        $_SESSION['token_expiration'] = time() + $body->expires_in;
-
+        if (isset($body->refresh_token)) {
+            $_SESSION['refresh_token'] = $body->refresh_token;
+            $_SESSION['access_token'] = $body->access_token;
+            $_SESSION['token_expiration'] = time() + $body->expires_in;
+        }
 
         return $body;
     }
@@ -97,7 +93,7 @@ class SJAuth {
         );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, self::BASE_URL. 'coins/api/v1/account');
+        curl_setopt($ch, CURLOPT_URL, sjFoundationConfig()->coins_api_url . 'coins/api/v1/account');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_HEADER, true);

@@ -4,8 +4,9 @@ namespace SJFoundation\Infrastructure\LoopBack;
 
 class SJProjectsApi {
 
-    const API_ENDPOINT = 'http://node:3010/api/';
-//    const API_ENDPOINT = 'http://localhost:3010/api/';
+    static function apiEndpoint() {
+        return sjFoundationConfig()->loopback_api_url;
+    }
 
     static function put($endpoint, $params) {
         $args = array(
@@ -14,7 +15,7 @@ class SJProjectsApi {
             'body'    =>  json_encode($params),
         );
 
-        $url = self::API_ENDPOINT . $endpoint;
+        $url = self::apiEndpoint() . $endpoint;
 
         return wp_remote_request($url, $args);
     }
@@ -26,7 +27,7 @@ class SJProjectsApi {
             'body'    =>  json_encode($params),
         );
 
-        $url = self::API_ENDPOINT . $endpoint;
+        $url = self::apiEndpoint() . $endpoint;
 
         wp_remote_request($url, $args);
     }
@@ -38,7 +39,7 @@ class SJProjectsApi {
             'body'    =>  json_encode($params),
         );
 
-        $url = self::API_ENDPOINT . $endpoint;
+        $url = self::apiEndpoint() . $endpoint;
 
         wp_remote_request($url, $args);
     }
@@ -54,7 +55,7 @@ class SJProjectsApi {
     }
 
     static function getUser($id) {
-        return wp_remote_get(self::API_ENDPOINT.'accounts/'.$id);
+        return wp_remote_get(self::apiEndpoint().'accounts/'.$id);
     }
 
     static function createProject(
@@ -89,7 +90,7 @@ class SJProjectsApi {
     }
 
     static function getProject($id) {
-        $response = wp_remote_get(self::API_ENDPOINT.'projects/'.$id);
+        $response = wp_remote_get(self::apiEndpoint().'projects/'.$id);
         if (!is_array($response)) {
             return [];
         }
@@ -108,7 +109,7 @@ class SJProjectsApi {
         if ($status) {
             $filter['where']['status'] = $status;
         }
-        $response = wp_remote_get(self::API_ENDPOINT.'projects?filter='.json_encode($filter));
+        $response = wp_remote_get(self::apiEndpoint().'projects?filter='.json_encode($filter));
         if (!is_array($response)) {
             return [];
         }
@@ -140,7 +141,7 @@ class SJProjectsApi {
     }
 
     static function getProjectTransactions($id) {
-        $response = wp_remote_get(self::API_ENDPOINT.'projects/'. $id .'/transactions');
+        $response = wp_remote_get(self::apiEndpoint().'projects/'. $id .'/transactions');
         if (!is_array($response)) {
             return [];
         }
@@ -148,7 +149,7 @@ class SJProjectsApi {
     }
 
     static function getProjectAccountTransactions($userId, $projectId) {
-        $response = wp_remote_get(self::API_ENDPOINT.'accounts/'. $userId .'/transactions?filter={"where":{"projectId":'.$projectId.'}}');
+        $response = wp_remote_get(self::apiEndpoint().'accounts/'. $userId .'/transactions?filter={"where":{"projectId":'.$projectId.'}}');
         if (!is_array($response)) {
             return [];
         }
@@ -172,7 +173,7 @@ class SJProjectsApi {
     }
 
     static function getAccountBalance($id) {
-        $response = wp_remote_get(self::API_ENDPOINT.'accounts/getBalance?id='. $id);
+        $response = wp_remote_get(self::apiEndpoint().'accounts/getBalance?id='. $id);
         if (!is_array($response)) {
             return ['amount' => 0];
         }
@@ -181,7 +182,7 @@ class SJProjectsApi {
     }
 
     static function getAccountTransactions($id) {
-        $response = wp_remote_get(self::API_ENDPOINT.'transactions?filter={"include":"project", "where":{"accountId": '.$id.'}, "order":"id DESC"}');
+        $response = wp_remote_get(self::apiEndpoint().'transactions?filter={"include":"project", "where":{"accountId": '.$id.'}, "order":"id DESC"}');
         if (!is_array($response)) {
             return [];
         }
@@ -190,6 +191,6 @@ class SJProjectsApi {
     }
 
     static function setCoinsToAll($amount) {
-        return wp_remote_get(self::API_ENDPOINT . 'accounts/setCoinsToAll?amount='.(int)$amount);
+        return wp_remote_get(self::apiEndpoint() . 'accounts/setCoinsToAll?amount='.(int)$amount);
     }
 }
