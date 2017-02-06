@@ -3,22 +3,45 @@
 namespace SJFoundation\Domain\Service;
 
 use SJFoundation\Domain\Mapper\ProjectMapper;
-use SJFoundation\Domain\Project;
 use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
 use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
 
 class ProjectService {
 
-    public function getProject() {
-        $post_id = get_the_ID();
-        $project = SJProjectsApi::getProject($post_id);
+    public function getProject($postId = 0) {
+        if (!$postId) {
+            $postId = get_the_ID();
+        }
+
+        $projectLoopBack = SJProjectsApi::getProject($postId);
+        $projectPostType = get_post($postId);
+
         $projectMapper = new ProjectMapper();
 
-        return $projectMapper->toDomainObject($project);
+        return $projectMapper->toDomainObject($projectLoopBack, $projectPostType);
     }
 
     public function getProjectContractTypes() {
         return ErisContractAPI::getProjectContractTypes();
+    }
+
+    public function getProjectById() {
+
+    }
+
+    public function getProjectBySlug($slug) {
+        $args = array(
+            'name'        => $slug,
+            'post_type'   => 'project_type',
+            'numberposts' => 1
+        );
+        $projects = get_posts($args);
+        if (!$projects) {
+            return [];
+        }
+        $project = $projects[0];
+
+        return $this->getProject($project->ID);
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace SJFoundation\Api;
 
+use SJFoundation\Domain\Service\ProjectService;
 use WP_Error;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -83,6 +84,21 @@ class RestController extends \WP_REST_Posts_Controller {
                 'permission_callback' => array( $this, 'no_permission' ),
                 'args' => array(
                     'status' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return true;
+                        }
+                    ),
+                ),
+            ),
+        ) );
+
+        register_rest_route( $this->namespace, '/get_project', array(
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'getProject'),
+                'permission_callback' => array( $this, 'no_permission' ),
+                'args' => array(
+                    'slug' => array(
                         'validate_callback' => function($param, $request, $key) {
                             return true;
                         }
@@ -184,7 +200,6 @@ class RestController extends \WP_REST_Posts_Controller {
         $project = SJProjectsApi::getProject($projectId);
         $contractProject = ErisContractAPI::getErisProjectByAddress($project->contractAddress);
 
-
         $amountRaised = $contractProject->amountRaised;
         $foundingGoal = $contractProject->fundingGoal;
         $closeOnGoalReached = $contractProject->closeOnGoalReached;
@@ -254,6 +269,21 @@ class RestController extends \WP_REST_Posts_Controller {
 
         $projects = SJProjectsApi::getProjects($page, $status);
         return json_encode($projects);
+    }
+
+    public function getProject(WP_REST_Request $request) {
+        $params = $request->get_query_params();
+
+        if (!isset($params['slug']) || !$params['slug']) {
+            return [];
+        }
+
+        $slug = $params['slug'];
+
+        $projectService = new ProjectService();
+        $project = $projectService->getProjectBySlug($slug);
+
+        return $project->render();
     }
 
     public function getBalance() {

@@ -6,8 +6,9 @@ use SJFoundation\Domain\Project;
 
 class ProjectMapper {
 
-    public function toDomainObject($data) {
+    public function toDomainObject($data, $projectPostType) {
         return new Project(
+            $projectPostType,
             $data->id,
             $data->price,
             $data->status,
