@@ -1,6 +1,15 @@
 <?php
 
-class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
+namespace SJFoundation\Api;
+
+use WP_Error;
+use WP_REST_Server;
+use WP_REST_Request;
+use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
+use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
+use SJFoundation\Infrastructure\SJAuth;
+
+class RestController extends \WP_REST_Posts_Controller {
 
     /**
      * The namespace.
@@ -64,6 +73,29 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
                         }
                     ),
                 ),
+            ),
+        ) );
+
+        register_rest_route( $this->namespace, '/get_projects', array(
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'getProjects'),
+                'permission_callback' => array( $this, 'no_permission' ),
+                'args' => array(
+                    'status' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return true;
+                        }
+                    ),
+                ),
+            ),
+        ) );
+
+        register_rest_route( $this->namespace, '/withdraw', array(
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'withdraw'),
+                'permission_callback' => array( $this, 'get_items_permissions_check' ),
             ),
         ) );
 
@@ -205,6 +237,25 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
         return $response;
     }
 
+    public function withdraw() {
+        $projects = SJProjectsApi::getProjects();
+        foreach ($projects as $project) {
+            if ($project->contractAddress) {
+                $response = ErisContractAPI::withdraw($project->contractAddress);
+            }
+        }
+    }
+
+    public function getProjects(WP_REST_Request $request) {
+        $params = $request->get_query_params();
+
+        $page = isset($params['page']) ? $params['page'] : 1;
+        $status = isset($params['status']) ? $params['status'] : false;
+
+        $projects = SJProjectsApi::getProjects($page, $status);
+        return json_encode($projects);
+    }
+
     public function getBalance() {
         $account = SJAuth::getAccount();
         if ($account) {
@@ -226,6 +277,10 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
      */
     public function get_items_permissions_check( $request ) {
         return current_user_can( 'edit_posts' );
+    }
+
+    public function no_permission( $request ) {
+        return true;
     }
 
     public function setCoinsToAll(WP_REST_Request $request) {

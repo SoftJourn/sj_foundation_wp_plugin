@@ -1,14 +1,17 @@
 <?php
 
+namespace SJFoundation\Infrastructure\CoinsApi;
+
+use SJFoundation\Infrastructure\SJAuth;
+
 class ErisContractAPI
 {
-    const BASE_URL = "https://sjcoins-testing.softjourn.if.ua/";
-//    const BASE_URL = 'https://vending.softjourn.if.ua/api/';
+
     const PROJECT_TYPE = "project";
     const CURRENCY_TYPE = "currency";
 
     static function sendRequest($endpoint) {
-        $baseUrl = self::BASE_URL;
+        $baseUrl = sjFoundationConfig()->coins_api_url;
         $token = SJAuth::getAccessToken();
 
         $curl = curl_init();
@@ -19,12 +22,11 @@ class ErisContractAPI
         ));
         $resp = curl_exec($curl);
         curl_close($curl);
-
         return json_decode($resp);
     }
 
     static function sendRequestWithParams($endpoint, $params) {
-        $baseUrl = self::BASE_URL;
+        $baseUrl = sjFoundationConfig()->coins_api_url;;
         $token = SJAuth::getAccessToken();
         $json = json_encode($params);
         $curl = curl_init();
@@ -61,13 +63,16 @@ class ErisContractAPI
         return $resultArray;
     }
 
-    static function createContract($projectId,$options)
+    static function createContract($projectId, $name, $options)
     {
-
-        $data = array("contractId" => $projectId, "parameters" => $options);
+        $data = array(
+            "contractId" => $projectId,
+            "name" => $name,
+            "parameters" => $options
+        );
         $json = json_encode($data);
         $curl = curl_init();
-        $baseUrl = self::BASE_URL;
+        $baseUrl = sjFoundationConfig()->coins_api_url;
         $token = SJAuth::getAccessToken();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
@@ -81,10 +86,12 @@ class ErisContractAPI
         curl_close($curl);
         $resp = json_decode($resp);
 
-        if(isset($resp->address)){
-            return $resp->address;
+        if(isset($resp->address)) {
+            return ['address' => $resp->address, 'error' => false];
+        } elseif (isset($resp->detail)) {
+            return ['address' => false, 'error' => $resp->detail];
         } else {
-            return false;
+            return ['address' => false, 'error' => 'Error create contract (coins api)'];
         }
     }
 
@@ -112,6 +119,11 @@ class ErisContractAPI
 
         $resultArray = self::sendRequestWithParams('coins/api/v1/crowdsale/donate/', $params);
 
+        return $resultArray;
+    }
+
+    static function withdraw($address) {
+        $resultArray = self::sendRequestWithParams("coins/api/v1/crowdsale/withdraw/${address}", []);
         return $resultArray;
     }
 }

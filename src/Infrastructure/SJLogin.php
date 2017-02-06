@@ -1,5 +1,10 @@
 <?php
 
+namespace SJFoundation\Infrastructure;
+
+use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
+use WP_Error;
+use WP_User;
 
 class SJLogin {
 
