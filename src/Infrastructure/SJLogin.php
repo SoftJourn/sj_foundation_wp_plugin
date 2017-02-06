@@ -1,5 +1,8 @@
 <?php
 
+namespace SJFoundation\Infrastructure;
+
+use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
 
 class SJLogin {
 

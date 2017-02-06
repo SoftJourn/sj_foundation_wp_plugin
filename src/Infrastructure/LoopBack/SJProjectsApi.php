@@ -1,9 +1,11 @@
 <?php
 
+namespace SJFoundation\Infrastructure\LoopBack;
+
 class SJProjectsApi {
 
-//    const API_ENDPOINT = 'http://node:3010/api/';
-    const API_ENDPOINT = 'http://localhost:3010/api/';
+    const API_ENDPOINT = 'http://node:3010/api/';
+//    const API_ENDPOINT = 'http://localhost:3010/api/';
 
     static function put($endpoint, $params) {
         $args = array(
@@ -93,6 +95,25 @@ class SJProjectsApi {
         }
         $balanceObject = json_decode($response['body']);
         return $balanceObject;
+    }
+
+    static function getProjects($page = 1, $status = false) {
+        $filter = [
+            'where' => [
+                'published' => true
+            ],
+            'limit' => 10,
+            'skip' => ($page-1)*10
+        ];
+        if ($status) {
+            $filter['where']['status'] = $status;
+        }
+        $response = wp_remote_get(self::API_ENDPOINT.'projects?filter='.json_encode($filter));
+        if (!is_array($response)) {
+            return [];
+        }
+        $projects = json_decode($response['body']);
+        return $projects;
     }
 
     static function deleteProject($id) {

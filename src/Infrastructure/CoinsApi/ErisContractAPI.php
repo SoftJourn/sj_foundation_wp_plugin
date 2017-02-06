@@ -1,5 +1,9 @@
 <?php
 
+namespace SJFoundation\Infrastructure\CoinsApi;
+
+use SJFoundation\Infrastructure\SJAuth;
+
 class ErisContractAPI
 {
     const BASE_URL = "https://sjcoins-testing.softjourn.if.ua/";

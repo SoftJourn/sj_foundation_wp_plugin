@@ -1,6 +1,15 @@
 <?php
 
-class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
+namespace SJFoundation;
+
+use WP_Error;
+use WP_REST_Server;
+use WP_REST_Request;
+use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
+use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
+use SJFoundation\Infrastructure\SJAuth;
+
+class RestController extends \WP_REST_Posts_Controller {
 
     /**
      * The namespace.
@@ -237,10 +246,14 @@ class WP_REST_Project_Controller extends WP_REST_Posts_Controller {
         }
     }
 
-    public function getProjects() {
-        $projects = SJProjectsApi::getProjects();
-        return json_encode($projects);
+    public function getProjects(WP_REST_Request $request) {
+        $params = $request->get_query_params();
 
+        $page = isset($params['page']) ? $params['page'] : 1;
+        $status = isset($params['status']) ? $params['status'] : false;
+
+        $projects = SJProjectsApi::getProjects($page, $status);
+        return json_encode($projects);
     }
 
     public function getBalance() {

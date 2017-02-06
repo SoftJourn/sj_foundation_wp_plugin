@@ -1,21 +1,30 @@
 <?php
 
-class SJ_Foundation_Class {
+namespace SJFoundation;
+
+use Attachments;
+use DateTime;
+use SJFoundation\Admin\ProjectMetabox;
+use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
+use SJFoundation\Infrastructure\SJLogin;
+use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
+
+class SJFoundationProjectType {
 
     public function __construct() {
 
     }
 
     public function init() {
+
+        $sjLogin = new SJLogin();
+        $sjLogin->sj_authenticate();
+
         add_action('rest_api_init', array($this, 'initRoutes'));
         add_action( 'init', array($this, 'initProjectPostType'), 0 );
         add_action( 'user_register', array($this, 'registration_save'), 10, 1 );
         add_action( 'profile_update', array($this, 'profile_update'), 10, 2 );
-        add_action( 'admin_init', array($this, 'remove_dashboard_meta') );
         add_action( 'attachments_register', [$this, 'projectAttachmentsInit'] );
-        add_action( 'admin_menu', [$this, 'custom_menu_page_removing'] );
-
-        add_filter('login_redirect', array('after_login_default_page'));
         add_filter('show_admin_bar', '__return_false');
         add_filter( 'rest_prepare_project_type', [$this, 'prepareProjectPost'], 10, 3 );
         add_filter( 'preview_post_link', [$this, 'change_post_preview_link'], 10, 2 );
@@ -23,6 +32,14 @@ class SJ_Foundation_Class {
 
         add_image_size( 'project-image-size', 620, 320 );
         $this->initProjectMetabox();
+    }
+
+    function set_default_admin_color($user_id) {
+        $args = array(
+            'ID' => $user_id,
+            'admin_color' => 'light'
+        );
+        wp_update_user( $args );
     }
 
     public function initProjectMetabox() {
@@ -44,22 +61,12 @@ class SJ_Foundation_Class {
     }
 
     public function initRoutes() {
-        $myProductController = new WP_REST_Project_Controller('project_type');
+        $myProductController = new RestController('project_type');
         $myProductController->register_routes();
     }
 
     public function after_login_default_page() {
         return '/';
-    }
-
-    public function remove_dashboard_meta() {
-        remove_meta_box( 'dashboard_incoming_links', 'dashboard', 'normal' );
-        remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
-        remove_meta_box( 'dashboard_secondary', 'dashboard', 'normal' );
-        remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
-        remove_meta_box( 'dashboard_recent_drafts', 'dashboard', 'side' );
-        remove_meta_box( 'dashboard_right_now', 'dashboard', 'normal' );
-        remove_meta_box( 'commentstatusdiv', 'post_project_type', 'normal' );
     }
 
     public function initProjectPostType() {
@@ -78,6 +85,7 @@ class SJ_Foundation_Class {
             'edit_item'             => __( 'Edit Project', 'text_domain' ),
             'update_item'           => __( 'Update Project', 'text_domain' ),
             'view_item'             => __( 'View Project', 'text_domain' ),
+            'view_items'             => __( 'View Projects', 'text_domain' ),
             'search_items'          => __( 'Search Project', 'text_domain' ),
             'not_found'             => __( 'Not found', 'text_domain' ),
             'not_found_in_trash'    => __( 'Not found in Trash', 'text_domain' ),
@@ -196,7 +204,7 @@ class SJ_Foundation_Class {
         return $next_project->post_name;
     }
 
-    public function projectAttachmentsInit( $attachments )
+    public function projectAttachmentsInit( Attachments $attachments )
     {
         $fields         = array(
             array(
@@ -214,44 +222,17 @@ class SJ_Foundation_Class {
         );
 
         $args = array(
-
-            // title of the meta box (string)
             'label'         => 'Project Attachments',
-
-            // all post types to utilize (string|array)
             'post_type'     => array( 'project_type' ),
-
-            // meta box position (string) (normal, side or advanced)
             'position'      => 'normal',
-
-            // meta box priority (string) (high, default, low, core)
             'priority'      => 'high',
-
-            // allowed file type(s) (array) (image|video|text|audio|application)
-            'filetype'      => null,  // no filetype limit
-
-            // include a note within the meta box (string)
             'note'          => 'Attach files here!',
-
-            // by default new Attachments will be appended to the list
-            // but you can have then prepend if you set this to false
             'append'        => true,
-
-            // text for 'Attach' button in meta box (string)
             'button_text'   => __( 'Attach Files', 'attachments' ),
-
-            // text for modal 'Attach' button (string)
             'modal_text'    => __( 'Attach', 'attachments' ),
-
-            // which tab should be the default in the modal (string) (browse|upload)
             'router'        => 'browse',
-
-            // whether Attachments should set 'Uploaded to' (if not already set)
             'post_parent'   => false,
-
-            // fields array
             'fields'        => $fields,
-
         );
 
         $attachments->register( 'project_attachments', $args ); // unique instance name

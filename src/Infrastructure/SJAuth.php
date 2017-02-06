@@ -1,5 +1,7 @@
 <?php
 
+namespace SJFoundation\Infrastructure;
+
 class SJAuth {
 
     const BASE_URL = 'https://sjcoins-testing.softjourn.if.ua/';

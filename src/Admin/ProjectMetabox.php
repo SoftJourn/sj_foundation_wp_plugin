@@ -1,5 +1,11 @@
 <?php
 
+namespace SJFoundation\Admin;
+
+use DateTime;
+use SJFoundation\Infrastructure\SJAuth;
+use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
+use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
 
 class ProjectMetabox
 {
@@ -37,15 +43,19 @@ class ProjectMetabox
     }
 
     public function ldap_admin_notice() {
+        if ( isset( $_GET['create_contract_error'] ) ) {
+            $message = 'Error create crowdsale contract (check coins api)';
+            $this->showError($message);
+        }
+
         $account = SJAuth::getAccount();
         if ($account) {
             return;
         }
-        ?>
-            <div class="error">
-                <p><?php _e( 'You need to login with your SoftJourn LDAP account to publish project! You can save draft only', 'sj_foundation_domain' ); ?></p>
-            </div>
-        <?php
+
+        $message = 'You need to login with your SoftJourn LDAP account to publish project! You can save draft only';
+        $this->showError($message);
+
     }
 
     public function hide_publish_button_editor() {
@@ -68,12 +78,10 @@ class ProjectMetabox
         <?php
     }
 
-    public function showError($message) {
-        ?>
-        <div class="error">
-            <p><?php _e( $message, 'sj_foundation_domain'.$message ); ?></p>
-        </div>
-        <?php
+    public function showError($message) {?>
+            <div class="notice error">
+                <p><?php _e( $message, 'sj_foundation_domain'.$message ); ?></p>
+            </div><?php
     }
 
     public function action_init_taxonomies()
@@ -246,11 +254,17 @@ class ProjectMetabox
         $address = ErisContractAPI::getOwnerErisAccount();
         $options = array($address, (int) $price, (int) $duration, !$canDonateMore, $coinsAddress);
         $contractAddress = ErisContractAPI::createContract($projectTypeId,$options);
-        if (!$contractAddress) {
-            $this->showError('Error create crowdsale contract');
+        if (!$contractAddress || true) {
+            add_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
             $this->unPublishPost($post_id);
+            return;
         }
         SJProjectsApi::addContractToProject($post_id, $contractAddress, $coinsAddress);
+    }
+
+    public function add_notice_contract_error( $location ) {
+        remove_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
+        return add_query_arg( array( 'create_contract_error' => 'api' ), $location );
     }
 
     public function unPublishPost($post_id) {
