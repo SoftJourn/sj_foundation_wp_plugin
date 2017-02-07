@@ -6,13 +6,15 @@ use SJFoundation\Domain\Project;
 
 class ProjectMapper {
 
-    public function toDomainObject($data) {
+    public function toDomainObject($data, $projectPostType) {
         return new Project(
+            $projectPostType,
             $data->id,
             $data->price,
             $data->status,
             $data->canDonateMore,
-            new \DateTime($data->dueDate)
+            new \DateTime($data->dueDate),
+            $data->published
         );
     }
 }

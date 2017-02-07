@@ -17,7 +17,6 @@ class ProjectMetabox
     const PROJECT_STATUS_FOUNDED = 'active';
     const PROJECT_STATUS_NOT_FOUNDED = 'active';
 
-
     /**
      * init meta box
      * @return void
@@ -33,7 +32,6 @@ class ProjectMetabox
         add_action('wp_trash_post', array($this, 'project_delete_post_data'));
         add_action( 'admin_notices', array($this, 'ldap_admin_notice') );
         add_action( 'admin_head', array($this, 'hide_publish_button_editor') );
-//        add_action( 'admin_head', array($this, 'hide_comments_metabox') );
     }
 
     public function ldap_admin_notice() {
@@ -60,14 +58,6 @@ class ProjectMetabox
         ?>
             <style>
                 #publishing-action { display: none; }
-            </style>
-        <?php
-    }
-
-    public function hide_comments_metabox() {
-        ?>
-            <style>
-                #commentstatusdiv { display: none; }
             </style>
         <?php
     }
@@ -193,7 +183,7 @@ class ProjectMetabox
         $options = array(
             $address,
             (int)$metaBoxFormModel->price,
-            (int)$metaBoxFormModel->duration,
+            5,//(int)$metaBoxFormModel->duration,
             !$metaBoxFormModel->canDonateMore,
             $coinsAddress
         );
@@ -208,7 +198,11 @@ class ProjectMetabox
             $this->unPublishPost($post_id);
             return;
         }
-        SJProjectsApi::addContractToProject($post_id, $contractApiResponse['address'], $coinsAddress);
+        SJProjectsApi::addContractToProject(
+            $post_id,
+            $contractApiResponse['address'],
+            $coinsAddress
+        );
     }
 
     public function add_notice_contract_error( $location ) {

@@ -2,6 +2,8 @@
 
 namespace SJFoundation\Infrastructure\LoopBack;
 
+use SJFoundation\Domain\Project;
+
 class SJProjectsApi {
 
     static function apiEndpoint() {
@@ -71,7 +73,6 @@ class SJProjectsApi {
             'id' => $id,
             'name' => $name,
             'price' => $price,
-            'status' => $status,
             'canDonateMore' => $canDonateMore,
             'duration' => $duration,
             'dueDate' => $dueDate,
@@ -82,6 +83,7 @@ class SJProjectsApi {
     static function addContractToProject($id, $contractAddress, $coinsAddress) {
         $params = [
             'id' => $id,
+            'status' => Project::STATUS_OPEN,
             'contractAddress' => $contractAddress,
             'coinsAddresses' => $coinsAddress,
             'published' => true,
