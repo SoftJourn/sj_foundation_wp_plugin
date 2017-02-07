@@ -103,6 +103,11 @@ class RestController extends \WP_REST_Posts_Controller {
                             return true;
                         }
                     ),
+                    'id' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return true;
+                        }
+                    ),
                 ),
             ),
         ) );
@@ -274,16 +279,21 @@ class RestController extends \WP_REST_Posts_Controller {
     public function getProject(WP_REST_Request $request) {
         $params = $request->get_query_params();
 
-        if (!isset($params['slug']) || !$params['slug']) {
+        if (!isset($params['slug']) && !isset($params['id'])) {
             return [];
         }
 
         $slug = $params['slug'];
+        $id = $params['id'];
 
         $projectService = new ProjectService();
-        $project = $projectService->getProjectBySlug($slug);
+        if ($id) {
+            $project = $projectService->getProjectById($id);
+        } else {
+            $project = $projectService->getProjectBySlug($slug);
+        }
 
-        return $project->render();
+        return $project ? $project->render() : [];
     }
 
     public function getBalance() {

@@ -13,7 +13,8 @@ class ProjectMapper {
             $data->price,
             $data->status,
             $data->canDonateMore,
-            new \DateTime($data->dueDate)
+            new \DateTime($data->dueDate),
+            $data->published
         );
     }
 }

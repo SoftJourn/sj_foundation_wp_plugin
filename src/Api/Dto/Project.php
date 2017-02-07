@@ -9,14 +9,16 @@ class Project {
     public $content;
     public $thumbnailUrl;
     public $durationLeft;
+    public $canDonateMore;
     public $price;
     public $status;
     public $raised;
+    public $userRaised;
     public $supporters;
     public $donationStatus;
     public $donationType;
     public $attachments;
-    public $comments;
+    public $commentsCount;
     public $transactions;
     public $categories;
 }

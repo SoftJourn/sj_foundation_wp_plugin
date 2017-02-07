@@ -25,10 +25,6 @@ class ProjectService {
         return ErisContractAPI::getProjectContractTypes();
     }
 
-    public function getProjectById() {
-
-    }
-
     public function getProjectBySlug($slug) {
         $args = array(
             'name'        => $slug,
@@ -42,6 +38,10 @@ class ProjectService {
         $project = $projects[0];
 
         return $this->getProject($project->ID);
+    }
+
+    public function getProjectById($id) {
+        return $this->getProject($id);
     }
 
 }
