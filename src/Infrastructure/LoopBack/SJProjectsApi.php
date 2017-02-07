@@ -87,6 +87,8 @@ class SJProjectsApi {
             'contractAddress' => $contractAddress,
             'coinsAddresses' => $coinsAddress,
             'published' => true,
+            'timeCreated' => time(),
+            'donationStatus' => 'open'
         ];
         self::put('projects', $params);
     }

@@ -116,7 +116,7 @@ class RestController extends \WP_REST_Posts_Controller {
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'withdraw'),
-                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                'permission_callback' => array( $this, 'no_permission' ),
             ),
         ) );
 
@@ -262,6 +262,7 @@ class RestController extends \WP_REST_Posts_Controller {
         foreach ($projects as $project) {
             if ($project->contractAddress) {
                 $response = ErisContractAPI::withdraw($project->contractAddress);
+                print_r($response);
             }
         }
     }

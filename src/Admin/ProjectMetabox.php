@@ -183,7 +183,7 @@ class ProjectMetabox
         $options = array(
             $address,
             (int)$metaBoxFormModel->price,
-            5,//(int)$metaBoxFormModel->duration,
+            (int)$metaBoxFormModel->duration,
             !$metaBoxFormModel->canDonateMore,
             $coinsAddress
         );

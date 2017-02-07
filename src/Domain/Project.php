@@ -35,6 +35,14 @@ class Project {
 
     public $published;
 
+    public $timeCreated;
+
+    public $donationStatus;
+
+    public $withdraw;
+
+    public $duration;
+
     /**
      * Project constructor.
      * @param \WP_Post $projectPostType
@@ -52,7 +60,11 @@ class Project {
         $status,
         $canDonateMore,
         $dueDate,
-        $published
+        $published,
+        $timeCreated,
+        $donationStatus,
+        $withdraw,
+        $duration
     ) {
         $this->projectPostType = $projectPostType;
         $this->id = $id;
@@ -61,12 +73,19 @@ class Project {
         $this->canDonateMore = $canDonateMore;
         $this->published = $published;
         $this->dueDate = $dueDate;
+        $this->timeCreated = $timeCreated;
+        $this->donationStatus = $donationStatus;
+        $this->withdraw = $withdraw;
+        $this->duration = $duration;
     }
 
     private function getDurationLeftInMinutes() {
-        $now = time();
-        $dueTime = $this->dueDate->getTimestamp();
-        return round(($dueTime - $now)/60);
+        $now = time()/60;
+        if($this->status == self::STATUS_DRAFT) {
+            return $this->duration;
+        }
+        $dueTime = ($this->timeCreated/60)+$this->duration;
+        return round(($dueTime - $now));
     }
 
 
@@ -105,24 +124,33 @@ class Project {
     }
 
     public function getSupportersCount($transactions) {
-        if (!$transactions) {
-            return 0;
+        $supporters = [];
+        foreach ($transactions as $transaction) {
+            if(!isset($supporters[$transaction->accountId])) {
+                $supporters[$transaction->accountId] = 0;
+            }
+            $supporters[$transaction->accountId] += $transaction->amount;
         }
-        return -1;
+        return count($supporters);
     }
 
     public function getRaisedCount($transactions) {
-        if (!$transactions) {
-            return 0;
+        $amount = 0;
+        foreach ($transactions as $transaction) {
+            $amount += $transaction->amount;
         }
-        return -1;
+        return $amount;
     }
 
     public function getUserRaisedCount($transactions) {
-        if (!$transactions) {
-            return 0;
+        $supporters = [];
+        foreach ($transactions as $transaction) {
+            if(!isset($supporters[$transaction->accountId])) {
+                $supporters[$transaction->accountId] = 0;
+            }
+            $supporters[$transaction->accountId] += $transaction->amount;
         }
-        return -1;
+        return isset($supporters[get_current_user_id()]) ? $supporters[get_current_user_id()] : 0;
     }
 
 
