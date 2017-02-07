@@ -64,9 +64,15 @@ class Project {
     }
 
     private function getDurationLeftInMinutes() {
-        $now = time();
-        $dueTime = $this->dueDate->getTimestamp();
-        return round(($dueTime - $now)/60);
+        if ($this->status == self::STATUS_DRAFT || $this->status == '') {
+            return $this->duration;
+        }
+        $now = time()/60;
+        if($this->status == self::STATUS_DRAFT) {
+            return $this->duration;
+        }
+        $dueTime = ($this->timeCreated/60)+$this->duration;
+        return round(($dueTime - $now));
     }
 
 
