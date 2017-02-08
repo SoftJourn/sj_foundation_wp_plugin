@@ -5,8 +5,10 @@ namespace SJFoundation\Api\Dto;
 class Project {
 
     public $id;
+    public $slug;
     public $title;
     public $content;
+    public $shortDescription;
     public $thumbnailUrl;
     public $durationLeft;
     public $canDonateMore;

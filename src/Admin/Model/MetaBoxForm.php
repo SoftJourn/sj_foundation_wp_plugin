@@ -14,6 +14,7 @@ class MetaBoxForm {
     public $duration;
     public $title;
     public $projectTypeId;
+    public $category;
 
     /**
      * MetaBoxForm constructor.
@@ -25,8 +26,9 @@ class MetaBoxForm {
      * @param $duration
      * @param $title
      */
-    public function __construct($id, $title, $price, $dueDate, $status, $canDonateMore, $duration, $projectTypeId)
+    public function __construct($id, $title, $price, $dueDate, $status, $canDonateMore, $duration, $projectTypeId, $category)
     {
+        $this->id = $id;
         $this->id = $id;
         $this->title = $title;
         $this->price = $price;
@@ -35,6 +37,7 @@ class MetaBoxForm {
         $this->canDonateMore = $canDonateMore;
         $this->duration = $duration;
         $this->projectTypeId = $projectTypeId;
+        $this->category = $category;
     }
 
 }

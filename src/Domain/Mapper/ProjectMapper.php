@@ -14,7 +14,11 @@ class ProjectMapper {
             $data->status,
             $data->canDonateMore,
             new \DateTime($data->dueDate),
-            $data->published
+            $data->published,
+            $data->timeCreated,
+            $data->donationStatus,
+            $data->withdraw,
+            $data->duration
         );
     }
 }
