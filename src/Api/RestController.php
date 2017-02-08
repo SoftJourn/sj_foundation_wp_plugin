@@ -247,10 +247,10 @@ class RestController extends \WP_REST_Posts_Controller {
         $newProject = SJProjectsApi::getProject($projectId);
         $projectPledgeSum = SJProjectsApi::getProjectPledgeSum($projectId);
 
-        if($newProject->price <= $projectPledgeSum) {
-            SJProjectsApi::updateProjectStatus($projectId, 'founded');
-            SJProjectsApi::updateProjectTransactionsStatus($projectId, 'founded');
-        }
+//        if($newProject->price <= $projectPledgeSum) {
+//            SJProjectsApi::updateProjectStatus($projectId, 'founded');
+//            SJProjectsApi::updateProjectTransactionsStatus($projectId, 'founded');
+//        }
 
         $response = rest_ensure_response( $return );
 

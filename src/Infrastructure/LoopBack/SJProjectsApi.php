@@ -111,6 +111,7 @@ class SJProjectsApi {
                     ['or' => [
                         ['status' => 'open'],
                         ['status' => 'close'],
+                        ['status' => 'founded'],
                     ]],
                     ['and' => [
                         ['published' => true,],
