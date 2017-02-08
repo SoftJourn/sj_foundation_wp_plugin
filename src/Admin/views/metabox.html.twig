@@ -3,9 +3,9 @@
     <form>
         {{ wp_nonce_field }}
         <p>Price</p>
-        <input type="text" name="sj_project_price" value="{{ project.price }}"/>
+        <input type="text" name="sj_project_price" value="{{ project.price ? project.price : 0 }}"/>
         <p>
-            <input type="checkbox" name="sj_project_can_donate_more" {{ project.canDonateMore ? 'checked' : '' }} />
+            <input type="checkbox" name="sj_project_can_donate_more" {{ project.canDonateMore or not project.id ? 'checked' : '' }} />
             can donate more
         </p>
         <p>Due date</p>

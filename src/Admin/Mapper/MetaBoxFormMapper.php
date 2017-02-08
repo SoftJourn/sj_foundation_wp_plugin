@@ -8,7 +8,8 @@ use SJFoundation\Admin\Model\MetaBoxForm;
 class MetaBoxFormMapper {
 
     public function toObject($post) {
-
+        $category = isset($post['radio_tax_input']['category'][0]) ? $post['radio_tax_input']['category'][0] : '';
+        $category = get_term( $category, 'category' );
         return new MetaBoxForm(
             $post['post_ID'],
             $post['post_title'],
@@ -17,7 +18,8 @@ class MetaBoxFormMapper {
             $this->getStatusPostData(),
             $this->getCanDonateMore(),
             $this->getDurationPostData(),
-            $this->getPostContractType($post)
+            $this->getPostContractType($post),
+            is_wp_error($category) ? '' : $category->slug
         );
     }
 

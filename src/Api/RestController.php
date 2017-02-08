@@ -116,7 +116,7 @@ class RestController extends \WP_REST_Posts_Controller {
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'withdraw'),
-                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                'permission_callback' => array( $this, 'no_permission' ),
             ),
         ) );
 
@@ -247,10 +247,10 @@ class RestController extends \WP_REST_Posts_Controller {
         $newProject = SJProjectsApi::getProject($projectId);
         $projectPledgeSum = SJProjectsApi::getProjectPledgeSum($projectId);
 
-        if($newProject->price <= $projectPledgeSum) {
-            SJProjectsApi::updateProjectStatus($projectId, 'founded');
-            SJProjectsApi::updateProjectTransactionsStatus($projectId, 'founded');
-        }
+//        if($newProject->price <= $projectPledgeSum) {
+//            SJProjectsApi::updateProjectStatus($projectId, 'founded');
+//            SJProjectsApi::updateProjectTransactionsStatus($projectId, 'founded');
+//        }
 
         $response = rest_ensure_response( $return );
 
@@ -262,6 +262,7 @@ class RestController extends \WP_REST_Posts_Controller {
         foreach ($projects as $project) {
             if ($project->contractAddress) {
                 $response = ErisContractAPI::withdraw($project->contractAddress);
+                print_r($response);
             }
         }
     }
@@ -271,9 +272,14 @@ class RestController extends \WP_REST_Posts_Controller {
 
         $page = isset($params['page']) ? $params['page'] : 1;
         $status = isset($params['status']) ? $params['status'] : false;
-
-        $projects = SJProjectsApi::getProjects($page, $status);
-        return json_encode($projects);
+        $category = isset($params['category']) ? $params['category'] : false;
+        $projectService = new ProjectService();
+        $loopBackProjects = SJProjectsApi::getProjects($page, $status, $category);
+        $projects = [];
+        foreach ($loopBackProjects as $project) {
+            $projects[] = $projectService->getProjectById($project->id)->render();
+        }
+        return $projects;
     }
 
     public function getProject(WP_REST_Request $request) {
