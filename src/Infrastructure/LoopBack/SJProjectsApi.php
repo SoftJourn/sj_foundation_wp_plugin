@@ -79,7 +79,7 @@ class SJProjectsApi {
             'duration' => $duration,
             'dueDate' => $dueDate,
         ];
-        self::put('projects', $params);
+        $response = self::put('projects', $params);
     }
 
     static function addContractToProject($id, $contractAddress, $coinsAddress) {
@@ -92,7 +92,7 @@ class SJProjectsApi {
             'timeCreated' => time(),
             'donationStatus' => 'open'
         ];
-        self::put('projects', $params);
+        $response = self::put('projects', $params);
     }
 
     static function getProject($id) {
@@ -116,7 +116,7 @@ class SJProjectsApi {
                     ['and' => [
                         ['published' => true,],
                         $status ? ['status' => $status] : null,
-                        $category ? ['category' => $category] : null
+                        $category ? ['category' => strtolower(urlencode($category))] : null
                     ]]
                 ]
 
@@ -126,7 +126,7 @@ class SJProjectsApi {
             'skip' => ($page-1)*10
         ];
 
-        $response = wp_remote_get(self::apiEndpoint().'projects?filter='.json_encode($filter));
+        $response = wp_remote_get(self::apiEndpoint().'projects?filter='.urlencode(json_encode($filter)));
         if (!is_array($response)) {
             return [];
         }

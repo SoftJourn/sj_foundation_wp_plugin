@@ -16,6 +16,7 @@ class ProjectService {
         $projectLoopBack = SJProjectsApi::getProject($postId);
         $projectPostType = get_post($postId);
 
+
         $projectMapper = new ProjectMapper();
 
         return $projectMapper->toDomainObject($projectLoopBack, $projectPostType);
@@ -27,7 +28,7 @@ class ProjectService {
 
     public function getProjectBySlug($slug) {
         $args = array(
-            'name'        => $slug,
+            'name'        => urlencode($slug),
             'post_type'   => 'project_type',
             'numberposts' => 1
         );
