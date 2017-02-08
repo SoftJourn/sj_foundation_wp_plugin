@@ -80,8 +80,8 @@ class Project {
     }
 
     private function getDurationLeftInMinutes() {
-        $now = time()/60;
-        if($this->status == self::STATUS_DRAFT) {
+        $now = round(time()/60);
+        if($this->status == self::STATUS_DRAFT || !$this->status) {
             return $this->duration;
         }
         $dueTime = ($this->timeCreated/60)+$this->duration;
@@ -126,10 +126,7 @@ class Project {
     public function getSupportersCount($transactions) {
         $supporters = [];
         foreach ($transactions as $transaction) {
-            if(!isset($supporters[$transaction->accountId])) {
-                $supporters[$transaction->accountId] = 0;
-            }
-            $supporters[$transaction->accountId] += $transaction->amount;
+            $supporters[$transaction->accountId] = true;
         }
         return count($supporters);
     }
@@ -158,8 +155,11 @@ class Project {
 
         $projectDto = new ProjectDto();
         $projectDto->id = $this->id;
+        $projectDto->slug = $this->projectPostType->post_name;
+        $projectDto->slug = $this->projectPostType->post_name;
         $projectDto->title = $this->projectPostType->post_title;
-        $projectDto->content = get_post_field('post_content', $this->id);
+        $projectDto->content = apply_filters( 'the_content', $this->projectPostType->post_content );
+        $projectDto->shortDescription = $this->projectPostType->post_excerpt;
         $projectDto->price = $this->price;
         $projectDto->status = $this->getStatus();
         $projectDto->canDonateMore = $this->canDonateMore;
@@ -172,7 +172,7 @@ class Project {
 
         $projectDto->supporters = $this->getSupportersCount($projectDto->transactions);
         $projectDto->raised = $this->getRaisedCount($projectDto->transactions);
-        $projectDto->userRaised = $this->getRaisedCount($projectDto->transactions);
+        $projectDto->userRaised = $this->getUserRaisedCount($projectDto->transactions);
 
         return $projectDto;
     }

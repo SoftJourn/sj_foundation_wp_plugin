@@ -272,9 +272,14 @@ class RestController extends \WP_REST_Posts_Controller {
 
         $page = isset($params['page']) ? $params['page'] : 1;
         $status = isset($params['status']) ? $params['status'] : false;
-
-        $projects = SJProjectsApi::getProjects($page, $status);
-        return json_encode($projects);
+        $category = isset($params['category']) ? $params['category'] : false;
+        $projectService = new ProjectService();
+        $loopBackProjects = SJProjectsApi::getProjects($page, $status, $category);
+        $projects = [];
+        foreach ($loopBackProjects as $project) {
+            $projects[] = $projectService->getProjectById($project->id)->render();
+        }
+        return $projects;
     }
 
     public function getProject(WP_REST_Request $request) {

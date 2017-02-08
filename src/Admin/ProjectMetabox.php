@@ -152,7 +152,8 @@ class ProjectMetabox
             $metaBoxFormModel->status,
             $metaBoxFormModel->canDonateMore,
             $metaBoxFormModel->duration,
-            $metaBoxFormModel->dueDate
+            $metaBoxFormModel->dueDate,
+            $metaBoxFormModel->category
         );
         SJProjectsApi::updateProjectTransactionsStatus($postId, $metaBoxFormModel->status);
 

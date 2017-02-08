@@ -67,11 +67,13 @@ class SJProjectsApi {
         $status,
         $canDonateMore,
         $duration,
-        $dueDate
+        $dueDate,
+        $category
     ) {
         $params = [
             'id' => $id,
             'name' => $name,
+            'category' => $category,
             'price' => $price,
             'canDonateMore' => $canDonateMore,
             'duration' => $duration,
@@ -102,17 +104,27 @@ class SJProjectsApi {
         return $balanceObject;
     }
 
-    static function getProjects($page = 1, $status = false) {
+    static function getProjects($page = 1, $status = false, $category = false) {
         $filter = [
             'where' => [
-                'published' => true
+                'and' => [
+                    ['or' => [
+                        ['status' => 'open'],
+                        ['status' => 'close'],
+                    ]],
+                    ['and' => [
+                        ['published' => true,],
+                        $status ? ['status' => $status] : null,
+                        $category ? ['category' => $category] : null
+                    ]]
+                ]
+
             ],
+            'order' => 'timeCreated DESC',
             'limit' => 10,
             'skip' => ($page-1)*10
         ];
-        if ($status) {
-            $filter['where']['status'] = $status;
-        }
+
         $response = wp_remote_get(self::apiEndpoint().'projects?filter='.json_encode($filter));
         if (!is_array($response)) {
             return [];
