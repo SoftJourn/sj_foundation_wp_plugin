@@ -23,4 +23,6 @@ class Project {
     public $commentsCount;
     public $transactions;
     public $categories;
+    public $canDonate;
+    public $canWithdraw;
 }

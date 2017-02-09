@@ -114,9 +114,16 @@ class RestController extends \WP_REST_Posts_Controller {
 
         register_rest_route( $this->namespace, '/withdraw', array(
             array(
-                'methods' => WP_REST_Server::READABLE,
+                'methods' => WP_REST_Server::CREATABLE,
                 'callback' => array($this, 'withdraw'),
-                'permission_callback' => array( $this, 'no_permission' ),
+                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                'args' => array(
+                    'projectId' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return true;
+                        }
+                    ),
+                ),
             ),
         ) );
 
@@ -199,6 +206,7 @@ class RestController extends \WP_REST_Posts_Controller {
 
         $return = [
             'status' => 'success',
+            'id' => $projectId,
         ];
 
         $balance = SJAuth::getAccount();
@@ -257,14 +265,22 @@ class RestController extends \WP_REST_Posts_Controller {
         return $response;
     }
 
-    public function withdraw() {
-        $projects = SJProjectsApi::getProjects();
-        foreach ($projects as $project) {
-            if ($project->contractAddress) {
-                $response = ErisContractAPI::withdraw($project->contractAddress);
-                print_r($response);
+    public function withdraw(WP_REST_Request $request) {
+        $params = $request->get_query_params();
+        $projectId = isset($params['projectId']) ? $params['projectId'] : false;
+        $return =  ['success' => false, 'id' => $projectId];
+        if (!$projectId) {
+            return $return;
+        }
+        $project = SJProjectsApi::getProject($projectId);
+        if ($project->contractAddress) {
+            $response = ErisContractAPI::withdraw($project->contractAddress);
+            if (isset($response->transactionResult) && $response->transactionResult) {
+                SJProjectsApi::withdraw($projectId);
+                $return['success'] = true;
             }
         }
+        return $return;
     }
 
     public function getProjects(WP_REST_Request $request) {
@@ -303,11 +319,18 @@ class RestController extends \WP_REST_Posts_Controller {
     }
 
     public function getBalance() {
+        return $this->getUser();
+    }
+
+    public function getUser() {
+        $user = (array)wp_get_current_user();
         $account = SJAuth::getAccount();
+        $user['isAdmin'] = (current_user_can('editor') || current_user_can('administrator'));
         if ($account) {
-            return ['amount' => $account->amount];
+            $user['amount'] = $account->amount;
+            return $user;
         }
-        return ['amount' => 0];
+        return $user['amount'] = 0;
     }
 
     public function getTransactions() {

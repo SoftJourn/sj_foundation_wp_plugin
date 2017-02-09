@@ -157,6 +157,14 @@ class SJProjectsApi {
         self::put('transactions', $params);
     }
 
+    static function withdraw($projectId) {
+        $params = [
+            'id' => $projectId,
+            'withdraw' => 'true',
+        ];
+        self::put('projects', $params);
+    }
+
     static function getProjectTransactions($id) {
         $response = wp_remote_get(self::apiEndpoint().'projects/'. $id .'/transactions');
         if (!is_array($response)) {

@@ -15,6 +15,10 @@ class Project {
     const STATUS_FOUNDED = 'closed';
     const STATUS_OPEN = 'open';
 
+    const DONATION_STATUS_OPEN = 'open';
+    const DONATIONS_STATUS_WIN = 'won';
+    const DONATIONS_STATUS_LOST = 'lost';
+
     /**
      * @var \WP_Post
      */
@@ -154,6 +158,36 @@ class Project {
         return isset($supporters[get_current_user_id()]) ? $supporters[get_current_user_id()] : 0;
     }
 
+    public function getCanDonate($raised) {
+        if ($this->getDurationLeftInMinutes() <= 0 || !(current_user_can('editor') || current_user_can('administrator'))) {
+            return false;
+        } else if ($this->canDonateMore) {
+            return true;
+        } else if($raised < $this->price) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getCanWithdraw() {
+        if ($this->getDurationLeftInMinutes() <= 0 && !$this->withdraw) {
+            return true;
+        }
+    }
+
+    public function getDonationStatus($raised) {
+        if ($this->getDurationLeftInMinutes() > 0 && $this->canDonateMore) {
+            return self::DONATION_STATUS_OPEN;
+        } else if ($this->getDurationLeftInMinutes() < 0 && $raised >= $this->price) {
+            return self::DONATIONS_STATUS_WIN;
+        } else if($this->getDurationLeftInMinutes() < 0 && $raised < $this->price ) {
+            return self::DONATIONS_STATUS_LOST;
+        } else if($this->getDurationLeftInMinutes() >= 0 && $raised >= $this->price && !$this->canDonateMore) {
+            return self::DONATIONS_STATUS_WIN;
+        }
+        return 'open';
+    }
+
 
     public function render() {
 
@@ -173,10 +207,12 @@ class Project {
         $projectDto->attachments = $this->getAttachments();
         $projectDto->transactions = $this->getTransactions();
         $projectDto->commentsCount = wp_count_comments($this->id);
-
         $projectDto->supporters = $this->getSupportersCount($projectDto->transactions);
         $projectDto->raised = $this->getRaisedCount($projectDto->transactions);
         $projectDto->userRaised = $this->getUserRaisedCount($projectDto->transactions);
+        $projectDto->canDonate = $this->getCanDonate($projectDto->raised);
+        $projectDto->canWithdraw = $this->getCanWithdraw();
+        $projectDto->donationStatus = $this->getDonationStatus($projectDto->raised);
 
         return $projectDto;
     }
