@@ -159,7 +159,7 @@ class Project {
     }
 
     public function getCanDonate($raised) {
-        if ($this->getDurationLeftInMinutes() <= 0 || !(current_user_can('editor') || current_user_can('administrator'))) {
+        if ($this->getDurationLeftInMinutes() <= 0) {
             return false;
         } else if ($this->canDonateMore) {
             return true;
