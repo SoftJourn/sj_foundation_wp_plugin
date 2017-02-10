@@ -188,6 +188,10 @@ class Project {
         return 'open';
     }
 
+    public function getAuthor() {
+        $authorId = $this->projectPostType->post_author;
+        return get_the_author_meta( 'display_name', $authorId);
+    }
 
     public function render() {
 
@@ -213,6 +217,7 @@ class Project {
         $projectDto->canDonate = $this->getCanDonate($projectDto->raised);
         $projectDto->canWithdraw = $this->getCanWithdraw();
         $projectDto->donationStatus = $this->getDonationStatus($projectDto->raised);
+        $projectDto->author = $this->getAuthor();
 
         return $projectDto;
     }

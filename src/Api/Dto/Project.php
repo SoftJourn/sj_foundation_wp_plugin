@@ -5,6 +5,7 @@ namespace SJFoundation\Api\Dto;
 class Project {
 
     public $id;
+    public $author;
     public $slug;
     public $title;
     public $content;

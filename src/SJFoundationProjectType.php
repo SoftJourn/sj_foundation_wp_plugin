@@ -104,7 +104,7 @@ class SJFoundationProjectType {
             'label'                 => __( 'Project Type', 'text_domain' ),
             'description'           => __( 'Project', 'text_domain' ),
             'labels'                => $labels,
-            'supports'              => array( 'title', 'editor', 'excerpt', 'thumbnail', 'comments', 'revisions'),
+            'supports'              => array( 'title', 'editor', 'author', 'excerpt', 'thumbnail', 'comments', 'revisions'),
             'taxonomies'            => array( 'category' ),
             'hierarchical'          => false,
             'public'                => true,
