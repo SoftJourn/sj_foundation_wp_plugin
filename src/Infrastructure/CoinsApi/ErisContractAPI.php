@@ -100,6 +100,17 @@ class ErisContractAPI
         return  self::getErisUser()->address;
     }
 
+    static function getErisAccountByUsername($username) {
+        $resultArray = self::sendRequest("coins/api/v1/accounts/all");
+
+        foreach ($resultArray as $account) {
+            if ($account->ldap == $username) {
+                return $account->address;
+            }
+        }
+        return false;
+    }
+
     static function getErisUser(){
         $resultArray = self::sendRequest("coins/api/v1/eris/account");
         return $resultArray;

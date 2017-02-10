@@ -113,6 +113,7 @@ class ProjectMetabox
         $dueDate = date_create($project->dueDate)->format('Y-m-d');
         $projectTypes = ErisContractAPI::getProjectContractTypes();
 
+
         ?>
             <div>
                 <form>
@@ -170,6 +171,16 @@ class ProjectMetabox
     }
 
     public function createErisContract($post_id) {
+
+        $metaBoxFormMapper = new MetaBoxFormMapper();
+        $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
+        $author = ErisContractAPI::getErisAccountByUsername($metaBoxFormModel->author);
+        if (!$author) {
+            add_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
+            $this->unPublishPost($post_id);
+            return;
+        }
+
         $metaBoxFormMapper = new MetaBoxFormMapper();
         $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
         $currencyTypes = ErisContractAPI::getCurrencyContractTypes();

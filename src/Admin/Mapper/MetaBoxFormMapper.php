@@ -9,7 +9,7 @@ class MetaBoxFormMapper {
 
     public function toObject($post) {
         $category = isset($post['radio_tax_input']['category'][0]) ? $post['radio_tax_input']['category'][0] : '';
-        $category = get_term( $category, 'category' );
+
         return new MetaBoxForm(
             $post['post_ID'],
             $post['post_title'],
@@ -19,7 +19,8 @@ class MetaBoxFormMapper {
             $this->getCanDonateMore(),
             $this->getDurationPostData(),
             $this->getPostContractType($post),
-            is_wp_error($category) ? '' : $category->slug
+            $category,
+            get_the_author_meta('user_login', $post['post_author'])
         );
     }
 

@@ -289,6 +289,10 @@ class RestController extends \WP_REST_Posts_Controller {
         $page = isset($params['page']) ? $params['page'] : 1;
         $status = isset($params['status']) ? $params['status'] : false;
         $category = isset($params['category']) ? $params['category'] : false;
+        if ($category) {
+            $wpCategory = get_category_by_slug($category);
+            $category = $wpCategory->cat_ID;
+        }
         $projectService = new ProjectService();
         $loopBackProjects = SJProjectsApi::getProjects($page, $status, $category);
         $projects = [];
