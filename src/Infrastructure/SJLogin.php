@@ -18,18 +18,20 @@ class SJLogin {
     function authenticate($user, $username, $password) {
         $sjAuth = new SJAuth();
         $sjAuth->logout();
-        if ( is_a($user, 'WP_User') ) {
-            return $user;
-        }
+
 
         if (!$username) {
             return $user;
         }
 
-
         if(!$sjAuth->login($username, $password)) {
             return $user;
         }
+
+        if ( is_a($user, 'WP_User')) {
+            return $user;
+        }
+
         $userData = $sjAuth::getAccount();
 
         $user = get_user_by('login', $username);

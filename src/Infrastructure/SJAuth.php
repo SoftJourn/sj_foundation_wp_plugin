@@ -5,6 +5,9 @@ namespace SJFoundation\Infrastructure;
 class SJAuth {
 
     static function getAccessToken() {
+        if(!isset($_SESSION['access_token'])) {
+            wp_logout();
+        }
         self::checkTokenExpiration();
         return $_SESSION['access_token'];
     }
@@ -17,6 +20,8 @@ class SJAuth {
 
     function login($username, $password)
     {
+        $_SESSION['refresh_token'] = '';
+        $_SESSION['access_token'] = '';
         $post = http_build_query([
             'username' => $username,
             'password' => $password,
