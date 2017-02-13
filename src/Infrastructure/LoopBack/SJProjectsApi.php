@@ -104,8 +104,8 @@ class SJProjectsApi {
         return $balanceObject;
     }
 
-    static function getProjects($page = 1, $status = false, $category = false) {
-        $filter = [
+    static function getSearchQuery($page = 1, $status = false, $category = false) {
+        $query = [
             'where' => [
                 'and' => [
                     ['or' => [
@@ -122,9 +122,14 @@ class SJProjectsApi {
 
             ],
             'order' => 'timeCreated DESC',
-            'limit' => 10,
-            'skip' => ($page-1)*10
+            'limit' => 9,
+            'skip' => ($page-1)*9
         ];
+        return $query;
+    }
+
+    static function getProjects($page = 1, $status = false, $category = false) {
+        $filter = self::getSearchQuery($page, $status, $category);
 
         $response = wp_remote_get(self::apiEndpoint().'projects?filter='.urlencode(json_encode($filter)));
         if (!is_array($response)) {
@@ -132,6 +137,16 @@ class SJProjectsApi {
         }
         $projects = json_decode($response['body']);
         return $projects;
+    }
+
+    static function getProjectsCount($page = 1, $status = false, $category = false) {
+        $filter = self::getSearchQuery($page, $status, $category);
+        $response = wp_remote_get(self::apiEndpoint().'projects/count/?where='.urlencode(json_encode($filter['where'])));
+        if (!is_array($response)) {
+            return [];
+        }
+        $projects = json_decode($response['body']);
+        return $projects->count;
     }
 
     static function deleteProject($id) {

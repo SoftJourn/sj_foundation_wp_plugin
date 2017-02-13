@@ -295,9 +295,15 @@ class RestController extends \WP_REST_Posts_Controller {
         }
         $projectService = new ProjectService();
         $loopBackProjects = SJProjectsApi::getProjects($page, $status, $category);
-        $projects = [];
+        $projectsCount = SJProjectsApi::getProjectsCount($page, $status, $category);
+        $projects = [
+            'data' => [],
+            'meta' => [
+                'pages' => ceil($projectsCount/9),
+            ]
+        ];
         foreach ($loopBackProjects as $project) {
-            $projects[] = $projectService->getProjectById($project->id)->render();
+            $projects['data'][] = $projectService->getProjectById($project->id)->render();
         }
         return $projects;
     }
