@@ -9,6 +9,7 @@ use SJFoundation\Infrastructure\SJAuth;
 use SJFoundation\Infrastructure\CoinsApi\ErisContractAPI;
 use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
 use Timber\Timber;
+use SJFoundation\Admin\ProjectMetaboxErrors;
 
 class ProjectMetabox
 {
@@ -18,11 +19,17 @@ class ProjectMetabox
     const PROJECT_STATUS_NOT_FOUNDED = 'active';
 
     /**
+     * @var ProjectMetaboxErrors
+     */
+    private $errorClass;
+
+    /**
      * init meta box
      * @return void
      */
     public function init()
     {
+        $this->errorClass = new ProjectMetaboxErrors();
         wp_enqueue_script('jquery-ui-datepicker');
 
         add_action('add_meta_boxes', array($this, 'add_project_metabox'));
@@ -30,24 +37,13 @@ class ProjectMetabox
         add_action('save_post', array($this, 'project_save_post_data'));
         add_action('init', array($this, 'action_init_taxonomies'));
         add_action('wp_trash_post', array($this, 'project_delete_post_data'));
-        add_action( 'admin_notices', array($this, 'ldap_admin_notice') );
+        add_action( 'admin_notices', array($this->errorClass, 'ldap_admin_notice') );
         add_action( 'admin_head', array($this, 'hide_publish_button_editor') );
+        add_action( 'admin_enqueue_scripts', [$this, 'sj_foundation_project_metabox_script'] );
     }
 
-    public function ldap_admin_notice() {
-        if ( isset( $_GET['create_contract_error'] ) ) {
-            $message = 'Error create crowdsale contract (check coins api)';
-            $this->showError($message);
-        }
-
-        $account = SJAuth::getAccount();
-        if ($account) {
-            return;
-        }
-
-        $message = 'You need to login with your SoftJourn LDAP account to publish project! You can save draft only';
-        $this->showError($message);
-
+    public function sj_foundation_project_metabox_script() {
+        wp_enqueue_script( 'sj_project_metabox_script' );
     }
 
     public function hide_publish_button_editor() {
@@ -55,17 +51,19 @@ class ProjectMetabox
         if ($account) {
             return;
         }
+        if (!User::isModerator()) {
+            ?>
+                <style>
+                    .subsubsub { display: none; }
+                </style>
+            <?php
+        }
         ?>
             <style>
                 #publishing-action { display: none; }
+                #postexcerpt .inside p { display: none; }
             </style>
         <?php
-    }
-
-    public function showError($message) {?>
-            <div class="notice error">
-                <p><?php _e( $message, 'sj_foundation_domain'.$message ); ?></p>
-            </div><?php
     }
 
     public function action_init_taxonomies()
@@ -170,19 +168,24 @@ class ProjectMetabox
 
     }
 
-    public function createErisContract($post_id) {
+    public function createErisContract($post_id)
+    {
 
         $metaBoxFormMapper = new MetaBoxFormMapper();
         $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
         $author = ErisContractAPI::getErisAccountByUsername($metaBoxFormModel->author);
         if (!$author) {
-            add_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
+            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_author_error'), 99);
             $this->unPublishPost($post_id);
             return;
         }
 
-        $metaBoxFormMapper = new MetaBoxFormMapper();
-        $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
+        if (!$metaBoxFormModel->canDonateMore && !$metaBoxFormModel->price) {
+            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_price_error'), 99);
+            $this->unPublishPost($post_id);
+            return;
+        }
+
         $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
         $coin = $currencyTypes[0];
         //List of currencies
@@ -193,7 +196,7 @@ class ProjectMetabox
         }
         $address = ErisContractAPI::getOwnerErisAccount();
         $options = array(
-            $address,
+            $author,
             (int)$metaBoxFormModel->price,
             (int)$metaBoxFormModel->duration,
             !$metaBoxFormModel->canDonateMore,
@@ -206,7 +209,7 @@ class ProjectMetabox
             $options
         );
         if (!$contractApiResponse['address']) {
-            add_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
+            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_error'), 99);
             $this->unPublishPost($post_id);
             return;
         }
@@ -215,11 +218,6 @@ class ProjectMetabox
             $contractApiResponse['address'],
             $coinsAddress
         );
-    }
-
-    public function add_notice_contract_error( $location ) {
-        remove_filter( 'redirect_post_location', array( $this, 'add_notice_contract_error' ), 99 );
-        return add_query_arg( array( 'create_contract_error' => 'api' ), $location );
     }
 
     public function unPublishPost($post_id) {
