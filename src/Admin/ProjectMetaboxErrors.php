@@ -32,7 +32,7 @@ class ProjectMetaboxErrors {
             self::showError($message);
         }
 
-        if( isset( $_GET['create_contract_error']) &&  $_GET['create_contract_error'] == 'author' ) {
+        if( isset( $_GET['create_contract_error']) &&  $_GET['create_contract_error'] == 'price' ) {
             $message = 'Fixed price can\'t  be 0' ;
             self::showError($message);
         }

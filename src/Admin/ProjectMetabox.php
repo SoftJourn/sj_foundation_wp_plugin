@@ -55,12 +55,13 @@ class ProjectMetabox
             ?>
                 <style>
                     .subsubsub { display: none; }
+                    #publishing-action { display: none; }
+                    #postexcerpt .inside p { display: none; }
                 </style>
             <?php
         }
         ?>
             <style>
-                #publishing-action { display: none; }
                 #postexcerpt .inside p { display: none; }
             </style>
         <?php
