@@ -169,10 +169,17 @@ class Project {
         return false;
     }
 
-    public function getCanWithdraw() {
-        if ($this->getDurationLeftInMinutes() <= 0 && !$this->withdraw) {
+    public function getCanWithdraw($raised) {
+        if ($this->withdraw) {
+            return false;
+        }
+        if ($this->getDurationLeftInMinutes() <= 0) {
             return true;
         }
+        if ($raised >= $this->price && !$this->canDonateMore) {
+            return true;
+        }
+        return false;
     }
 
     public function getDonationStatus($raised) {
@@ -215,7 +222,7 @@ class Project {
         $projectDto->raised = $this->getRaisedCount($projectDto->transactions);
         $projectDto->userRaised = $this->getUserRaisedCount($projectDto->transactions);
         $projectDto->canDonate = $this->getCanDonate($projectDto->raised);
-        $projectDto->canWithdraw = $this->getCanWithdraw();
+        $projectDto->canWithdraw = $this->getCanWithdraw($projectDto->raised);
         $projectDto->donationStatus = $this->getDonationStatus($projectDto->raised);
         $projectDto->author = $this->getAuthor();
 

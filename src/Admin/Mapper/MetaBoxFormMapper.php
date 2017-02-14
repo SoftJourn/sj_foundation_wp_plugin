@@ -3,6 +3,7 @@
 namespace SJFoundation\Admin\Mapper;
 
 use DateTime;
+use DateTimeZone;
 use SJFoundation\Admin\Model\MetaBoxForm;
 
 class MetaBoxFormMapper {
@@ -61,8 +62,7 @@ class MetaBoxFormMapper {
             return '';
         }
         $current = new DateTime();
-        $due = new DateTime($post['sj_project_due_date']);
-        $due->setTime(23, 59, 59);
+        $due = new DateTime($post['sj_project_due_date'].' '.$post['sj_project_due_time'], new DateTimeZone('Europe/Kiev'));
         $duration = intval(($due->getTimestamp() - $current->getTimestamp()) / 60);
         return $duration;
     }
@@ -77,7 +77,7 @@ class MetaBoxFormMapper {
         if (!isset($post['sj_project_due_date'])) {
             return '';
         }
-        return sanitize_text_field($post['sj_project_due_date']);
+        return sanitize_text_field($post['sj_project_due_date'].' '.$post['sj_project_due_time']);
     }
 
     /**

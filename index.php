@@ -23,6 +23,10 @@ add_action( 'admin_head', 'hide_update_notice_to_all_but_admin_users', 1 );
 
 //wp_register_script( 'sj_project_metabox_script', __DIR__ . '/js/sj_project_metabox.js', false, '1.0.0' );
 wp_register_script( 'sj_project_metabox_script', plugins_url('/sj_foundation_plugin/js/sj_project_metabox.js'), false);
+wp_register_script( 'jquery_timepicker_script', plugins_url('/sj_foundation_plugin/js/timepicker/jquery.timepicker.min.js'), false);
+wp_register_style( 'sj_jquery_ui_style', plugins_url('/sj_foundation_plugin/css/jquery-ui.min.css'), false);
+wp_register_style( 'jquery_timepicker_style', plugins_url('/sj_foundation_plugin/js/timepicker/jquery.timepicker.css'), false);
+wp_register_style( 'sj_project_metabox_style', plugins_url('/sj_foundation_plugin/css/sj_project_metabox.css'), false);
 
 use SJFoundation\SJFoundationProjectType;
 

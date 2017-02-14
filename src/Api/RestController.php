@@ -278,6 +278,7 @@ class RestController extends \WP_REST_Posts_Controller {
             if (isset($response->transactionResult) && $response->transactionResult) {
                 SJProjectsApi::withdraw($projectId);
                 $return['success'] = true;
+                return $return;
             }
         }
         return $return;

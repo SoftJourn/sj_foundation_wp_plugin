@@ -23,7 +23,14 @@ class ProjectService {
     }
 
     public function getProjectContractTypes() {
-        return ErisContractAPI::getProjectContractTypes();
+        $contractTypes = ErisContractAPI::getProjectContractTypes();
+        $contractTypesActive = [];
+        foreach ($contractTypes as $contractType) {
+            if ($contractType->active == true) {
+                $contractTypesActive[] = $contractType;
+            }
+        }
+        return $contractTypesActive;
     }
 
     public function getProjectBySlug($slug) {

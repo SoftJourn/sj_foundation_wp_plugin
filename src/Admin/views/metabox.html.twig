@@ -9,7 +9,8 @@
             can donate more
         </p>
         <p>Due date</p>
-        <input type="date" id="datepicker" name="sj_project_due_date" value="{{ project.dueDate|date('Y-m-d') }}"/>
+        <input type="text" id="datepicker" name="sj_project_due_date" value="{{ project.dueDate|date('Y-m-d') }}"/>
+        <input type="text" id="timepicker" name="sj_project_due_time" value="{{ project.dueDate|date('H:i') }}"/>
     </form>
 </div>
 {% if isModerator and projectTypes|length %}

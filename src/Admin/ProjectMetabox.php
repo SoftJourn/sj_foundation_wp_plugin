@@ -40,10 +40,20 @@ class ProjectMetabox
         add_action( 'admin_notices', array($this->errorClass, 'ldap_admin_notice') );
         add_action( 'admin_head', array($this, 'hide_publish_button_editor') );
         add_action( 'admin_enqueue_scripts', [$this, 'sj_foundation_project_metabox_script'] );
+        add_action( 'admin_print_styles', [$this, 'sj_foundation_project_metabox_styles'] );
     }
 
     public function sj_foundation_project_metabox_script() {
+        wp_enqueue_script( 'jquery' );
+        wp_enqueue_script("jquery-ui-core");
+        wp_enqueue_script( 'jquery_timepicker_script' );
         wp_enqueue_script( 'sj_project_metabox_script' );
+        wp_enqueue_style("jquery_timepicker_style");
+        wp_enqueue_style("sj_jquery_ui_style");
+        wp_enqueue_style("sj_project_metabox_style");
+    }
+    public function sj_foundation_project_metabox_styles() {
+        wp_enqueue_style("sj_jquery_ui_style");
     }
 
     public function hide_publish_button_editor() {
@@ -55,7 +65,6 @@ class ProjectMetabox
             ?>
                 <style>
                     .subsubsub { display: none; }
-                    #publishing-action { display: none; }
                     #postexcerpt .inside p { display: none; }
                 </style>
             <?php
@@ -103,38 +112,6 @@ class ProjectMetabox
         SJProjectsApi::deleteProject($postId);
     }
 
-    public function renderPublishedMetaBox() {
-        $post_id = get_the_ID();
-        $project = SJProjectsApi::getProject($post_id);
-
-        $price = $project->price;
-        $canDonateMore = $project->canDonateMore;
-        $dueDate = date_create($project->dueDate)->format('Y-m-d');
-        $projectTypes = ErisContractAPI::getProjectContractTypes();
-
-
-        ?>
-            <div>
-                <form>
-                    <?php wp_nonce_field($post_id, "sj-project-meta-box-nonce"); ?>
-                    <p>Price</p>
-                    <input type="text" disabled value="<?php echo $price ?>"/>
-                    <p><input type="checkbox" disabled <?php echo $canDonateMore ? 'checked' : '' ?> /> can donate more</p>
-                    <p>Due date</p>
-                    <input type="date" disabled value="<?php echo $dueDate; ?>"/>
-                </form>
-            </div>
-
-            <div>
-                <p>Contract type</p>
-                <select disabled >
-                    <?php foreach ($projectTypes as $value)
-                        echo "<option value='$value->id'>$value->name</option>" ?>
-                </select>
-            </div>
-        <?php
-    }
-
 
     public function project_save_post_data($postId)
     {
@@ -144,6 +121,12 @@ class ProjectMetabox
 
         $metaBoxFormMapper = new MetaBoxFormMapper();
         $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
+
+        if (!$metaBoxFormModel->canDonateMore && !$metaBoxFormModel->price) {
+            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_price_error'), 99);
+            remove_action('save_post', [$this, 'project_save_post_data']);
+            return false;
+        }
 
         SJProjectsApi::createProject(
             $metaBoxFormModel->id,
@@ -165,7 +148,7 @@ class ProjectMetabox
         if (!$this->checkPostData($post_id)) {
             return false;
         }
-        $this->createErisContract($post_id);
+        return $this->createErisContract($post_id);
 
     }
 
@@ -178,13 +161,15 @@ class ProjectMetabox
         if (!$author) {
             add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_author_error'), 99);
             $this->unPublishPost($post_id);
-            return;
+            return false;
         }
 
         if (!$metaBoxFormModel->canDonateMore && !$metaBoxFormModel->price) {
             add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_price_error'), 99);
             $this->unPublishPost($post_id);
-            return;
+
+            remove_action('publish_project_type', [$this, 'project_publish_post_data']);
+            return false;
         }
 
         $currencyTypes = ErisContractAPI::getCurrencyContractTypes();
@@ -212,13 +197,14 @@ class ProjectMetabox
         if (!$contractApiResponse['address']) {
             add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_error'), 99);
             $this->unPublishPost($post_id);
-            return;
+            return false;
         }
         SJProjectsApi::addContractToProject(
             $post_id,
             $contractApiResponse['address'],
             $coinsAddress
         );
+        return true;
     }
 
     public function unPublishPost($post_id) {
