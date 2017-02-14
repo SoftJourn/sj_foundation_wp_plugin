@@ -8,8 +8,10 @@ class SJAuth {
         if(!isset($_SESSION['access_token'])) {
             wp_logout();
         }
-        self::checkTokenExpiration();
-        return $_SESSION['access_token'];
+        if ($_SESSION['access_token'] !== '') {
+            self::checkTokenExpiration();
+            return $_SESSION['access_token'];
+        }
     }
 
     static function checkTokenExpiration() {
@@ -85,8 +87,9 @@ class SJAuth {
             $_SESSION['refresh_token'] = $body->refresh_token;
             $_SESSION['access_token'] = $body->access_token;
             $_SESSION['token_expiration'] = time() + $body->expires_in;
+        } else {
+            wp_logout();
         }
-
         return $body;
     }
 
