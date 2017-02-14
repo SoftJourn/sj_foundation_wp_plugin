@@ -170,7 +170,7 @@ class Project {
     }
 
     public function getCanWithdraw($raised) {
-        if ($this->withdraw) {
+        if ($this->withdraw || $raised == 0) {
             return false;
         }
         if ($this->getDurationLeftInMinutes() <= 0) {
@@ -187,7 +187,7 @@ class Project {
             return self::DONATION_STATUS_OPEN;
         } else if ($this->getDurationLeftInMinutes() < 0 && $raised >= $this->price) {
             return self::DONATIONS_STATUS_WIN;
-        } else if($this->getDurationLeftInMinutes() < 0 && $raised < $this->price ) {
+        } else if($this->getDurationLeftInMinutes() <= 0 && $raised < $this->price ) {
             return self::DONATIONS_STATUS_LOST;
         } else if($this->getDurationLeftInMinutes() >= 0 && $raised >= $this->price && !$this->canDonateMore) {
             return self::DONATIONS_STATUS_WIN;

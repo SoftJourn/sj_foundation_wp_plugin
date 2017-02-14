@@ -143,7 +143,7 @@ class SJProjectsApi {
         $filter = self::getSearchQuery($page, $status, $category);
         $response = wp_remote_get(self::apiEndpoint().'projects/count/?where='.urlencode(json_encode($filter['where'])));
         if (!is_array($response)) {
-            return [];
+            return 0;
         }
         $projects = json_decode($response['body']);
         return $projects->count;

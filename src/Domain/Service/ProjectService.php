@@ -15,7 +15,7 @@ class ProjectService {
 
         $projectLoopBack = SJProjectsApi::getProject($postId);
         $projectPostType = get_post($postId);
-        if (!$projectPostType) {
+        if (!$projectPostType || $projectPostType->post_status == 'auto-draft') {
             return null;
         }
 
