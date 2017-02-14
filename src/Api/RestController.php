@@ -304,7 +304,9 @@ class RestController extends \WP_REST_Posts_Controller {
             ]
         ];
         foreach ($loopBackProjects as $project) {
-            $projects['data'][] = $projectService->getProjectById($project->id)->render();
+            if ($domainObject = $projectService->getProjectById($project->id)) {
+                $projects['data'][] = $domainObject->render();
+            }
         }
         return $projects;
     }

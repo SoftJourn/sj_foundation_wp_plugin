@@ -15,7 +15,9 @@ class ProjectService {
 
         $projectLoopBack = SJProjectsApi::getProject($postId);
         $projectPostType = get_post($postId);
-
+        if (!$projectPostType) {
+            return null;
+        }
 
         $projectMapper = new ProjectMapper();
 
