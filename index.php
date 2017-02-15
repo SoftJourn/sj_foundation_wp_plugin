@@ -27,6 +27,12 @@ wp_register_script( 'jquery_timepicker_script', plugins_url('/sj_foundation_plug
 wp_register_style( 'sj_jquery_ui_style', plugins_url('/sj_foundation_plugin/css/jquery-ui.min.css'), false);
 wp_register_style( 'jquery_timepicker_style', plugins_url('/sj_foundation_plugin/js/timepicker/jquery.timepicker.css'), false);
 wp_register_style( 'sj_project_metabox_style', plugins_url('/sj_foundation_plugin/css/sj_project_metabox.css'), false);
+wp_register_style( 'sj_login_style', plugins_url('/sj_foundation_plugin/css/custom_login.css'), false);
+
+add_action( 'login_enqueue_scripts', 'sj_custom_login' );
+function sj_custom_login() {
+    wp_enqueue_style("sj_login_style");
+}
 
 use SJFoundation\SJFoundationProjectType;
 

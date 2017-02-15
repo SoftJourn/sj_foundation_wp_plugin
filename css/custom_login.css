@@ -1,0 +1,41 @@
+body.login {
+    background-color: white;
+}
+
+#backtoblog a,
+#login label{
+    color: #72777c;
+}
+
+#login #login_error {
+    background: none;
+    color: #72777c;
+}
+
+#login #login_error a{
+    display: none;
+}
+
+#loginform {
+    background-color: white;
+    box-shadow: none;
+    color: #72777c;
+}
+
+#loginform .submit input{
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: white;
+}
+
+#loginform .forgetmenot {
+    display: none;
+}
+
+#login h1 {
+    display: none;
+}
+
+#login #nav {
+    display: none;
+}
