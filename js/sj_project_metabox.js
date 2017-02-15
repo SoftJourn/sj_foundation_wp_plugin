@@ -6,7 +6,7 @@ jQuery(function () {
 
     if (!$title) {
       e.preventDefault();
-      alert( "Title cnn't be empty" );
+      alert( "Title can't be empty" );
       return false;
     }
     if( $checked != 'checked' && parseInt($price) <= 0) {
