@@ -2,7 +2,7 @@ body.login {
     background-color: white;
 }
 
-#backtoblog a,
+#login p#backtoblog a,
 #login label{
     color: #72777c;
 }
