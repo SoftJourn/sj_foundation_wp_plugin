@@ -16,6 +16,8 @@ class MetaBoxForm {
     public $projectTypeId;
     public $category;
     public $author;
+    public $crowdsaleAddress;
+    public $isPublic;
 
     /**
      * MetaBoxForm constructor.
@@ -27,8 +29,20 @@ class MetaBoxForm {
      * @param $duration
      * @param $title
      */
-    public function __construct($id, $title, $price, $dueDate, $status, $canDonateMore, $duration, $projectTypeId, $category, $author)
-    {
+    public function __construct(
+        $id,
+        $title,
+        $price,
+        $dueDate,
+        $status,
+        $canDonateMore,
+        $duration,
+        $projectTypeId,
+        $category,
+        $author,
+        $crowdsaleAddress,
+        $isPublic
+    ) {
         $this->id = $id;
         $this->title = $title;
         $this->price = $price;
@@ -39,6 +53,8 @@ class MetaBoxForm {
         $this->projectTypeId = $projectTypeId;
         $this->category = $category;
         $this->author = $author;
+        $this->crowdsaleAddress = $crowdsaleAddress;
+        $this->isPublic = $isPublic;
     }
 
 }

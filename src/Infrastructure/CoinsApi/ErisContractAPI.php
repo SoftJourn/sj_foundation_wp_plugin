@@ -110,6 +110,12 @@ class ErisContractAPI
         }
         return false;
     }
+    
+    static function getCrowdsaleAccounts() {
+        $resultArray = self::sendRequest("coins/api/v1/accounts/crowdsale");
+
+        return $resultArray;
+    }
 
     static function getErisUser(){
         $resultArray = self::sendRequest("coins/api/v1/eris/account");

@@ -68,7 +68,8 @@ class SJProjectsApi {
         $canDonateMore,
         $duration,
         $dueDate,
-        $category
+        $category,
+        $isPublic
     ) {
         $params = [
             'id' => $id,
@@ -78,6 +79,7 @@ class SJProjectsApi {
             'canDonateMore' => $canDonateMore,
             'duration' => $duration,
             'dueDate' => $dueDate,
+            'public' => $isPublic,
         ];
         $response = self::put('projects', $params);
     }

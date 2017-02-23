@@ -136,7 +136,8 @@ class ProjectMetabox
             $metaBoxFormModel->canDonateMore,
             $metaBoxFormModel->duration,
             $metaBoxFormModel->dueDate,
-            $metaBoxFormModel->category
+            $metaBoxFormModel->category,
+            $metaBoxFormModel->isPublic
         );
         SJProjectsApi::updateProjectTransactionsStatus($postId, $metaBoxFormModel->status);
 
@@ -145,6 +146,9 @@ class ProjectMetabox
     }
 
     public function project_publish_post_data($post_id) {
+        if ($_POST['original_post_status'] == 'publish') {
+            return false;
+        }
         if (!$this->checkPostData($post_id)) {
             return false;
         }
@@ -157,12 +161,12 @@ class ProjectMetabox
 
         $metaBoxFormMapper = new MetaBoxFormMapper();
         $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
-        $author = ErisContractAPI::getErisAccountByUsername($metaBoxFormModel->author);
-        if (!$author) {
-            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_author_error'), 99);
-            $this->unPublishPost($post_id);
-            return false;
-        }
+//        $author = ErisContractAPI::getErisAccountByUsername($metaBoxFormModel->author);
+//        if (!$author) {
+//            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_author_error'), 99);
+//            $this->unPublishPost($post_id);
+//            return false;
+//        }
 
         if (!$metaBoxFormModel->canDonateMore && !$metaBoxFormModel->price) {
             add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_price_error'), 99);
@@ -180,9 +184,9 @@ class ProjectMetabox
         foreach ($coins as $val) {
             $coinsAddress[] = $val->address;
         }
-        $address = ErisContractAPI::getOwnerErisAccount();
+
         $options = array(
-            $author,
+            $metaBoxFormModel->crowdsaleAddress,
             (int)$metaBoxFormModel->price,
             (int)$metaBoxFormModel->duration,
             !$metaBoxFormModel->canDonateMore,
@@ -231,13 +235,13 @@ class ProjectMetabox
     }
 
     public function renderMetaBox() {
-
         $projectService = new ProjectService();
 
         $context = Timber::get_context();
         $context['project'] = $projectService->getProject();
         $context['isModerator'] = User::isModerator();
         $context['projectTypes'] = $projectService->getProjectContractTypes();
+        $context['crowdsaleAccounts'] = ErisContractAPI::getCrowdsaleAccounts();
         $context['wp_nonce_field'] = wp_nonce_field(get_the_ID(), "sj-project-meta-box-nonce");
 
         Timber::render('views/metabox.html.twig', $context);

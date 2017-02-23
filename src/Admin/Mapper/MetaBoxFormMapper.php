@@ -21,7 +21,9 @@ class MetaBoxFormMapper {
             $this->getDurationPostData(),
             $this->getPostContractType($post),
             $category,
-            get_the_author_meta('user_login', $post['post_author'])
+            get_the_author_meta('user_login', $post['post_author']),
+            $this->getPostCrowdsaleAddress($post),
+            $this->getIsPublic($post)
         );
     }
 
@@ -36,6 +38,23 @@ class MetaBoxFormMapper {
             return '';
         }
         return sanitize_text_field($post['sj_project_contract_type']);
+    }
+
+    public function getPostCrowdsaleAddress($post)
+    {
+        if (!isset($post['sj_project_beneficent_account'])) {
+            return '';
+        }
+        return sanitize_text_field($post['sj_project_beneficent_account']);
+    }
+
+    public function getIsPublic($post)
+    {
+        $post = $_POST;
+        if (!isset($post['sj_project_is_public'])) {
+            return false;
+        }
+        return $post['sj_project_is_public'] === 'on';
     }
 
     /**

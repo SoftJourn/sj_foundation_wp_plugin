@@ -18,7 +18,8 @@ class ProjectMapper {
             $data->timeCreated,
             $data->donationStatus,
             $data->withdraw,
-            $data->duration
+            $data->duration,
+            $data->public
         );
     }
 }

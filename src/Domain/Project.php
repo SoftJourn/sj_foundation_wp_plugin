@@ -47,6 +47,8 @@ class Project {
 
     public $duration;
 
+    public $isPublic;
+
     /**
      * Project constructor.
      * @param \WP_Post $projectPostType
@@ -68,7 +70,8 @@ class Project {
         $timeCreated,
         $donationStatus,
         $withdraw,
-        $duration
+        $duration,
+        $isPublic
     ) {
         $this->projectPostType = $projectPostType;
         $this->id = $id;
@@ -81,6 +84,7 @@ class Project {
         $this->donationStatus = $donationStatus;
         $this->withdraw = $withdraw;
         $this->duration = $duration;
+        $this->isPublic = $isPublic;
     }
 
     private function getDurationLeftInMinutes() {
