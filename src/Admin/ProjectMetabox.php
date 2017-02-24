@@ -161,12 +161,6 @@ class ProjectMetabox
 
         $metaBoxFormMapper = new MetaBoxFormMapper();
         $metaBoxFormModel = $metaBoxFormMapper->toObject($_POST);
-//        $author = ErisContractAPI::getErisAccountByUsername($metaBoxFormModel->author);
-//        if (!$author) {
-//            add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_author_error'), 99);
-//            $this->unPublishPost($post_id);
-//            return false;
-//        }
 
         if (!$metaBoxFormModel->canDonateMore && !$metaBoxFormModel->price) {
             add_filter('redirect_post_location', array($this->errorClass, 'add_notice_contract_price_error'), 99);
