@@ -26,4 +26,5 @@ class Project {
     public $categories;
     public $canDonate;
     public $canWithdraw;
+    public $updates;
 }

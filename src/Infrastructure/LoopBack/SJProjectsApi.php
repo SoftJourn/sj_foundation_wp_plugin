@@ -235,4 +235,22 @@ class SJProjectsApi {
     static function setCoinsToAll($amount) {
         return wp_remote_get(self::apiEndpoint() . 'accounts/setCoinsToAll?amount='.(int)$amount);
     }
+
+    static function createUpdate($username, $projectId, $content) {
+        $params = [
+            'username' => $username,
+            'projectId' => $projectId,
+            'content' => $content,
+        ];
+        self::put('updates', $params);
+    }
+
+    static function getUpdates($projectId){
+        $response = wp_remote_get(self::apiEndpoint().'projects/'. $projectId .'/updates');
+        if (!is_array($response)) {
+            return [];
+        }
+        return json_decode($response['body']);
+    }
+
 }

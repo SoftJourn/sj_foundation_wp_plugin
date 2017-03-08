@@ -77,6 +77,26 @@ class RestController extends \WP_REST_Posts_Controller {
             ),
         ) );
 
+        register_rest_route( $this->namespace, '/add_update', array(
+            array(
+                'methods' => WP_REST_Server::CREATABLE,
+                'callback' => array($this, 'createProjectUpdate'),
+                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                'args' => array(
+                    'project_id' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return is_numeric( $param );
+                        }
+                    ),
+                    'content' => array(
+                        'validate_callback' => function($param, $request, $key) {
+                            return true;
+                        }
+                    ),
+                ),
+            ),
+        ) );
+
         register_rest_route( $this->namespace, '/get_projects', array(
             array(
                 'methods' => WP_REST_Server::READABLE,
@@ -263,6 +283,25 @@ class RestController extends \WP_REST_Posts_Controller {
         $response = rest_ensure_response( $return );
 
         return $response;
+    }
+
+    public function createProjectUpdate(WP_REST_Request $request) {
+        $params = $request->get_body();
+        $params = json_decode($params);
+        $user = wp_get_current_user();
+
+        $projectId = (int)$params->project_id;
+        $content = $params->content;
+        $username = $user->nickname;
+
+        $return = [
+            'status' => 'success',
+            'id' => $projectId,
+        ];
+
+        SJProjectsApi::createUpdate($username, $projectId, $content);
+
+        return $return;
     }
 
     public function withdraw(WP_REST_Request $request) {

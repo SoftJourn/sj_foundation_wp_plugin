@@ -5,6 +5,7 @@ namespace SJFoundation\Domain;
 use Attachments;
 use SJFoundation\Api\Dto\Project as ProjectDto;
 use SJFoundation\Infrastructure\LoopBack\SJProjectsApi;
+use SJFoundation\Infrastructure\SJAuth;
 
 /**
  * Project domain model
@@ -204,6 +205,11 @@ class Project {
         return get_the_author_meta( 'display_name', $authorId);
     }
 
+    public function getUpdates() {
+        $updates = SJProjectsApi::getUpdates($this->id);
+        return $updates;
+    }
+
     public function render() {
 
         $projectDto = new ProjectDto();
@@ -229,6 +235,7 @@ class Project {
         $projectDto->canWithdraw = $this->getCanWithdraw($projectDto->raised);
         $projectDto->donationStatus = $this->getDonationStatus($projectDto->raised);
         $projectDto->author = $this->getAuthor();
+        $projectDto->updates = $this->getUpdates();
 
         return $projectDto;
     }
