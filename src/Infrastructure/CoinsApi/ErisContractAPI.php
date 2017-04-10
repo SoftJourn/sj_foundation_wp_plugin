@@ -45,20 +45,20 @@ class ErisContractAPI
     static function getProjectContractTypes()
     {
         $projectType = self::PROJECT_TYPE;
-        $resultArray = self::sendRequest("coins/api/v1/contracts/types/${projectType}");
+        $resultArray = self::sendRequest("coins/v1/contracts/types/${projectType}");
         return $resultArray;
     }
 
     static function getCurrencyContractTypes()
     {
         $currencyType = self::CURRENCY_TYPE;
-        $resultArray = self::sendRequest("coins/api/v1/contracts/types/${currencyType}");
+        $resultArray = self::sendRequest("coins/v1/contracts/types/${currencyType}");
         return $resultArray;
     }
 
     static function getInstances($id)
     {
-        $resultArray = self::sendRequest("coins/api/v1/contracts/instances/${id}");
+        $resultArray = self::sendRequest("coins/v1/contracts/instances/${id}");
 
         return $resultArray;
     }
@@ -76,7 +76,7 @@ class ErisContractAPI
         $token = SJAuth::getAccessToken();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_URL => "${baseUrl}coins/api/v1/contracts/instances",
+            CURLOPT_URL => "${baseUrl}coins/v1/contracts/instances",
             CURLOPT_POST => 1,
             CURLOPT_HTTPHEADER => array("Authorization: bearer ${token}"
             ,"Content-Type: application/json"),
@@ -101,7 +101,7 @@ class ErisContractAPI
     }
 
     static function getErisAccountByUsername($username) {
-        $resultArray = self::sendRequest("coins/api/v1/accounts/all");
+        $resultArray = self::sendRequest("coins/v1/accounts/all");
 
         foreach ($resultArray as $account) {
             if ($account->ldap == $username) {
@@ -112,18 +112,18 @@ class ErisContractAPI
     }
     
     static function getCrowdsaleAccounts() {
-        $resultArray = self::sendRequest("coins/api/v1/accounts/crowdsale");
+        $resultArray = self::sendRequest("coins/v1/accounts/crowdsale");
 
         return $resultArray;
     }
 
     static function getErisUser(){
-        $resultArray = self::sendRequest("coins/api/v1/eris/account");
+        $resultArray = self::sendRequest("coins/v1/eris/account");
         return $resultArray;
     }
 
     static function getErisProjectByAddress($address) {
-        $resultArray = self::sendRequest("coins/api/v1/crowdsale/${address}");
+        $resultArray = self::sendRequest("coins/v1/crowdsale/${address}");
         return $resultArray;
     }
 
@@ -134,13 +134,13 @@ class ErisContractAPI
             'amount' => $amount,
         ];
 
-        $resultArray = self::sendRequestWithParams('coins/api/v1/crowdsale/donate/', $params);
+        $resultArray = self::sendRequestWithParams('coins/v1/crowdsale/donate/', $params);
 
         return $resultArray;
     }
 
     static function withdraw($address) {
-        $resultArray = self::sendRequestWithParams("coins/api/v1/crowdsale/withdraw/${address}", []);
+        $resultArray = self::sendRequestWithParams("coins/v1/crowdsale/withdraw/${address}", []);
         return $resultArray;
     }
 }
